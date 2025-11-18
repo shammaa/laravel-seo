@@ -71,6 +71,12 @@ final class SEOService
 
     public function set(): void
     {
+        // Reset all managers to avoid duplicates
+        $this->metaTagsManager->reset();
+        $this->openGraphManager->reset();
+        $this->twitterCardManager->reset();
+        $this->jsonLdManager->reset();
+        
         $pageData = $this->getPageData();
         $siteData = $this->getSiteData();
 
@@ -601,16 +607,11 @@ final class SEOService
         $imageUrl = $this->normalizeImageUrl($pageData->image);
         $siteData = $this->getSiteData();
 
-        // Build WebPage schema for regular pages
-        $this->jsonLdManager->setTitle($pageData->title)
-            ->setDescription($pageData->description)
-            ->setType('WebPage')
-            ->addImage($imageUrl);
-        
-        // Add URL to the schema
+        // Build WebPage schema - use add() directly to avoid duplication
         $this->jsonLdManager->add([
             '@context' => 'https://schema.org',
             '@type' => 'WebPage',
+            'headline' => $pageData->title,
             'name' => $pageData->title,
             'description' => $pageData->description,
             'url' => request()->url(),

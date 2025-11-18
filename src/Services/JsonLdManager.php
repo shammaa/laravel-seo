@@ -45,6 +45,13 @@ final class JsonLdManager
         }
         return $this;
     }
+    
+    public function addProperty(string $key, $value): self
+    {
+        $this->ensureBasicSchema();
+        $this->schemas[0][$key] = $value;
+        return $this;
+    }
 
     public function add(array $schema): self
     {
