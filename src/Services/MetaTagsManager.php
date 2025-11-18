@@ -32,11 +32,25 @@ final class MetaTagsManager
 
     public function addMeta(string $name, string $content, string $type = 'name'): self
     {
-        $this->metas[] = [
-            'name' => $name,
-            'content' => $content,
-            'type' => $type,
-        ];
+        // Check for duplicates - if same name and type exists, replace it
+        $key = $type . ':' . $name;
+        $found = false;
+        foreach ($this->metas as $index => $meta) {
+            if ($meta['name'] === $name && $meta['type'] === $type) {
+                $this->metas[$index]['content'] = $content;
+                $found = true;
+                break;
+            }
+        }
+        
+        if (!$found) {
+            $this->metas[] = [
+                'name' => $name,
+                'content' => $content,
+                'type' => $type,
+            ];
+        }
+        
         return $this;
     }
 

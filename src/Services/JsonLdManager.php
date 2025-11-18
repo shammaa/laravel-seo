@@ -38,7 +38,10 @@ final class JsonLdManager
             if (!is_array($this->schemas[0]['image'])) {
                 $this->schemas[0]['image'] = [$this->schemas[0]['image']];
             }
-            $this->schemas[0]['image'][] = $url;
+            // Check for duplicates
+            if (!in_array($url, $this->schemas[0]['image'], true)) {
+                $this->schemas[0]['image'][] = $url;
+            }
         }
         return $this;
     }

@@ -599,11 +599,24 @@ final class SEOService
     private function buildBasicJsonLd(PageData $pageData): void
     {
         $imageUrl = $this->normalizeImageUrl($pageData->image);
+        $siteData = $this->getSiteData();
 
+        // Build WebPage schema for regular pages
         $this->jsonLdManager->setTitle($pageData->title)
             ->setDescription($pageData->description)
-            ->setType($pageData->schema)
+            ->setType('WebPage')
             ->addImage($imageUrl);
+        
+        // Add URL to the schema
+        $this->jsonLdManager->add([
+            '@context' => 'https://schema.org',
+            '@type' => 'WebPage',
+            'name' => $pageData->title,
+            'description' => $pageData->description,
+            'url' => request()->url(),
+            'image' => $imageUrl,
+            'inLanguage' => $siteData['locale'] ?? app()->getLocale(),
+        ]);
     }
 
     private function normalizeImageUrl(?string $imagePath): string

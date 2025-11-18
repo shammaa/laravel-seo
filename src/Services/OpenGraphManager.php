@@ -37,6 +37,27 @@ final class OpenGraphManager
 
     public function addImage(string $url, ?int $width = null, ?int $height = null, ?string $type = null, ?string $alt = null): self
     {
+        // Check for duplicate images by URL
+        foreach ($this->images as $index => $existingImage) {
+            if ($existingImage['url'] === $url) {
+                // Update existing image
+                if ($width !== null) {
+                    $this->images[$index]['width'] = $width;
+                }
+                if ($height !== null) {
+                    $this->images[$index]['height'] = $height;
+                }
+                if ($type !== null) {
+                    $this->images[$index]['type'] = $type;
+                }
+                if ($alt !== null) {
+                    $this->images[$index]['alt'] = $alt;
+                }
+                return $this;
+            }
+        }
+        
+        // Add new image
         $image = ['url' => $url];
         
         if ($width !== null) {
