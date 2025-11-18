@@ -80,9 +80,17 @@ final class NewsArticleSchema
             ['width' => 1200, 'height' => 630],
         ];
 
+        $addedUrls = [];
         foreach ($sizes as $size) {
             try {
                 $imageUrl = $this->getImageUrl($imagePath, $size['width'] . 'x' . $size['height']);
+                
+                // Avoid duplicate URLs
+                if (in_array($imageUrl, $addedUrls)) {
+                    continue;
+                }
+                
+                $addedUrls[] = $imageUrl;
                 
                 $images[] = [
                     '@type' => 'ImageObject',

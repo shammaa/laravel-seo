@@ -32,23 +32,34 @@ final class MetaTagsManager
 
     public function addMeta(string $name, string $content, string $type = 'name'): self
     {
-        // Check for duplicates - if same name and type exists, replace it
-        $key = $type . ':' . $name;
-        $found = false;
-        foreach ($this->metas as $index => $meta) {
-            if ($meta['name'] === $name && $meta['type'] === $type) {
-                $this->metas[$index]['content'] = $content;
-                $found = true;
-                break;
-            }
-        }
+        // Some meta tags can have multiple values (like article:tag)
+        $allowMultiple = in_array($name, ['article:tag', 'article:section', 'og:image']);
         
-        if (!$found) {
+        if ($allowMultiple) {
+            // Allow multiple values for these tags
             $this->metas[] = [
                 'name' => $name,
                 'content' => $content,
                 'type' => $type,
             ];
+        } else {
+            // Check for duplicates - if same name and type exists, replace it
+            $found = false;
+            foreach ($this->metas as $index => $meta) {
+                if ($meta['name'] === $name && $meta['type'] === $type) {
+                    $this->metas[$index]['content'] = $content;
+                    $found = true;
+                    break;
+                }
+            }
+            
+            if (!$found) {
+                $this->metas[] = [
+                    'name' => $name,
+                    'content' => $content,
+                    'type' => $type,
+                ];
+            }
         }
         
         return $this;
