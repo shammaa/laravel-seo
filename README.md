@@ -2216,8 +2216,8 @@ The package automatically shares data with views:
 
 ## Requirements
 
-- PHP 8.2+
-- Laravel 10.0+ or 11.0+
+- PHP 8.1+
+- Laravel 9.0+, 10.0+, or 11.0+
 
 ## License
 
