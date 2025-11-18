@@ -61,17 +61,25 @@ final class NewsArticleSchema
             return $images;
         }
 
-        // Normalize image path
+        // Normalize image path - preserve full path if image_route is configured
+        $useImageRoute = function_exists('route') && ($this->config['image_route'] ?? null);
+        
         if (filter_var($imagePath, FILTER_VALIDATE_URL)) {
-            $imagePath = basename($imagePath);
+            // Full URL - extract path
+            $parsedUrl = parse_url($imagePath);
+            $imagePath = ltrim($parsedUrl['path'] ?? '', '/');
         }
 
+        // Remove protocol if present
         $imagePath = str_replace(['http://', 'https://', '//'], '', $imagePath);
         $imagePath = ltrim($imagePath, '/');
         
-        if (strpos($imagePath, '/') !== false) {
+        // If using image route, we can use basename (route will handle it)
+        // Otherwise, keep full path for asset()
+        if ($useImageRoute && strpos($imagePath, '/') !== false) {
             $imagePath = basename($imagePath);
         }
+        // If not using image route, keep full path (e.g., 'storage/oc.webp')
 
         $sizes = $this->config['image_sizes']['schema'] ?? [
             ['width' => 1920, 'height' => 1440],
