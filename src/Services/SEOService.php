@@ -557,7 +557,7 @@ final class SEOService
 
     private function getSiteData(): array
     {
-        $locale = app()->getLocale();
+        $locale = $this->config['site']['locale'] ?? app()->getLocale();
         $cacheKey = "seo_site_data_{$locale}";
         $cacheTtl = $this->config['cache_ttl'] ?? 86400;
 

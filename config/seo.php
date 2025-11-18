@@ -25,6 +25,7 @@ return [
         'url' => env('SEO_SITE_URL', url('/')),
         'logo' => env('SEO_SITE_LOGO', null), // Path to logo image
         'publisher' => env('SEO_SITE_PUBLISHER', null), // Publisher name (defaults to site name)
+        'locale' => env('SEO_SITE_LOCALE', null), // Override locale for og:locale (defaults to app.locale)
     ],
 
     /*
