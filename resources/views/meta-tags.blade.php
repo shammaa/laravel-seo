@@ -1,18 +1,22 @@
 @php
-use Shammaa\LaravelSEO\Facades\SEO;
-use Shammaa\LaravelSEO\Facades\OG;
-use Shammaa\LaravelSEO\Facades\Twitter;
-use Shammaa\LaravelSEO\Facades\Schema;
+use Shammaa\LaravelSEO\Services\MetaTagsManager;
+use Shammaa\LaravelSEO\Services\OpenGraphManager;
+use Shammaa\LaravelSEO\Services\TwitterCardManager;
+use Shammaa\LaravelSEO\Services\JsonLdManager;
+$metaTagsManager = app(MetaTagsManager::class);
+$openGraphManager = app(OpenGraphManager::class);
+$twitterCardManager = app(TwitterCardManager::class);
+$jsonLdManager = app(JsonLdManager::class);
 @endphp
 
 {{-- Performance Optimization Tags --}}
 {!! $performanceTags ?? '' !!}
 
 {{-- Meta Tags --}}
-{!! SEO::generate() !!}
-{!! OG::generate() !!}
-{!! Twitter::generate() !!}
-{!! Schema::generate() !!}
+{!! $metaTagsManager->generate() !!}
+{!! $openGraphManager->generate() !!}
+{!! $twitterCardManager->generate() !!}
+{!! $jsonLdManager->generate() !!}
 {{-- LinkedIn uses OpenGraph tags, so no need to generate separately --}}
 
 {{-- AMP Link --}}
