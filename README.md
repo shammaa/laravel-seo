@@ -106,18 +106,6 @@ After adding the repository, you can install the package:
 composer require shammaa/laravel-seo
 ```
 
-Or specify a version:
-
-```bash
-composer require shammaa/laravel-seo:^1.0
-```
-
-**Alternative: Install directly without modifying composer.json:**
-
-```bash
-composer require shammaa/laravel-seo:dev-main --prefer-source
-```
-
 But you'll still need to add the repository to `composer.json` for future updates.
 
 ### Step 3: Publish Configuration
