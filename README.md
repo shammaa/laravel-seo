@@ -81,13 +81,39 @@ Professional SEO package for Laravel with comprehensive support for OpenGraph, T
 
 ## Installation
 
-### Step 1: Install via Composer
+### Step 1: Add Repository to composer.json
 
-```bash
-composer require shammaa/laravel-seo
+Since this package is hosted on GitHub, you need to add the repository to your `composer.json`:
+
+```json
+{
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/shammaa/laravel-seo"
+        }
+    ],
+    "require": {
+        "shammaa/laravel-seo": "dev-main"
+    }
+}
 ```
 
-### Step 2: Publish Configuration
+### Step 2: Install via Composer
+
+```bash
+composer require shammaa/laravel-seo:dev-main
+```
+
+**Or install directly from GitHub:**
+
+```bash
+composer require shammaa/laravel-seo:dev-main --prefer-source
+```
+
+**Note:** If you want to use a specific version, create a release/tag on GitHub and use it instead of `dev-main`.
+
+### Step 3: Publish Configuration
 
 ```bash
 php artisan vendor:publish --tag=seo-config
@@ -95,7 +121,7 @@ php artisan vendor:publish --tag=seo-config
 
 This creates `config/seo.php` where you can configure all SEO settings.
 
-### Step 3: Configure Basic Settings
+### Step 4: Configure Basic Settings
 
 Edit `config/seo.php` and set your site information:
 
