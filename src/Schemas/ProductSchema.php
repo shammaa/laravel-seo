@@ -23,7 +23,7 @@ final class ProductSchema
             'name' => $pageData->title,
             'description' => $pageData->description,
             'image' => $images,
-            'url' => request()->url(),
+            'url' => $this->getCurrentUrl(),
         ];
 
         // SKU
@@ -158,7 +158,7 @@ final class ProductSchema
         $currency = $this->config['ecommerce']['default_currency'] ?? 'USD';
         $availability = 'https://schema.org/InStock';
         $priceValidUntil = null;
-        $url = request()->url();
+        $url = $this->getCurrentUrl();
 
         // Get price
         if (isset($model->price)) {
@@ -277,6 +277,22 @@ final class ProductSchema
         }
 
         return 'https://schema.org/NewCondition';
+    }
+
+    /**
+     * Get current URL safely (works in console and HTTP contexts)
+     */
+    private function getCurrentUrl(): string
+    {
+        if (app()->runningInConsole()) {
+            return config('app.url', 'http://localhost');
+        }
+        
+        try {
+            return request()->url();
+        } catch (\Exception $e) {
+            return config('app.url', 'http://localhost');
+        }
     }
 }
 

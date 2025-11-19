@@ -19,7 +19,7 @@ final class OpenGraphBuilder
     {
         $this->openGraphManager->setTitle($pageData->title)
             ->setDescription($pageData->description)
-            ->setUrl(request()->url())
+            ->setUrl($this->getCurrentUrl())
             ->setType($pageType === 'post' ? 'article' : 'website')
             ->addProperty('og:locale', $siteData['locale'] ?? app()->getLocale())
             ->addProperty('og:site_name', $siteData['name']);
@@ -69,7 +69,7 @@ final class OpenGraphBuilder
         }
 
         // Support for image route helper
-        if (function_exists('route') && ($this->config['image_route'] ?? null)) {
+        if (!$this->isRunningInConsole() && function_exists('route') && ($this->config['image_route'] ?? null)) {
             $routeName = $this->config['image_route']['name'] ?? 'image';
             $size = $this->config['image_route']['og_size'] ?? '1200x630';
             
@@ -84,6 +84,30 @@ final class OpenGraphBuilder
         }
 
         return asset($imagePath);
+    }
+
+    /**
+     * Get current URL safely (works in console and HTTP contexts)
+     */
+    private function getCurrentUrl(): string
+    {
+        if (app()->runningInConsole()) {
+            return config('app.url', 'http://localhost');
+        }
+        
+        try {
+            return request()->url();
+        } catch (\Exception $e) {
+            return config('app.url', 'http://localhost');
+        }
+    }
+
+    /**
+     * Check if running in console
+     */
+    private function isRunningInConsole(): bool
+    {
+        return app()->runningInConsole();
     }
 }
 

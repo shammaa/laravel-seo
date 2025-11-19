@@ -15,6 +15,22 @@ final class MetaTagsBuilder
     ) {
     }
 
+    /**
+     * Get current URL safely (works in console and HTTP contexts)
+     */
+    private function getCurrentUrl(): string
+    {
+        if (app()->runningInConsole()) {
+            return config('app.url', 'http://localhost');
+        }
+        
+        try {
+            return request()->url();
+        } catch (\Exception $e) {
+            return config('app.url', 'http://localhost');
+        }
+    }
+
     public function build(PageData $pageData, string $pageType, $model): void
     {
         $this->metaTagsManager->setTitle($pageData->title);
@@ -35,7 +51,7 @@ final class MetaTagsBuilder
             $this->metaTagsManager->addMeta('publisher', $publisher);
         }
 
-        $this->metaTagsManager->setCanonical(request()->url());
+        $this->metaTagsManager->setCanonical($this->getCurrentUrl());
 
         // Article-specific meta tags
         if ($pageType === 'post' && $model && !empty($pageData->publishedAt)) {

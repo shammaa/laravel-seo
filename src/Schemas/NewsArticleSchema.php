@@ -23,7 +23,7 @@ final class NewsArticleSchema
         $schema = [
             '@context' => 'https://schema.org',
             '@type' => 'NewsArticle',
-            'mainEntityOfPage' => request()->url(),
+            'mainEntityOfPage' => $this->getCurrentUrl(),
             'headline' => $pageData->title,
             'description' => $pageData->description,
             'image' => $images,
@@ -186,7 +186,7 @@ final class NewsArticleSchema
 
     private function getImageUrl(string $path, string $size): string
     {
-        if (function_exists('route') && ($this->config['image_route'] ?? null)) {
+        if (!$this->isRunningInConsole() && function_exists('route') && ($this->config['image_route'] ?? null)) {
             $routeName = $this->config['image_route']['name'] ?? 'image';
             
             try {
@@ -214,6 +214,30 @@ final class NewsArticleSchema
         
         $words = preg_split('/\s+/u', $text, -1, PREG_SPLIT_NO_EMPTY);
         return count($words);
+    }
+
+    /**
+     * Get current URL safely (works in console and HTTP contexts)
+     */
+    private function getCurrentUrl(): string
+    {
+        if (app()->runningInConsole()) {
+            return config('app.url', 'http://localhost');
+        }
+        
+        try {
+            return request()->url();
+        } catch (\Exception $e) {
+            return config('app.url', 'http://localhost');
+        }
+    }
+
+    /**
+     * Check if running in console
+     */
+    private function isRunningInConsole(): bool
+    {
+        return app()->runningInConsole();
     }
 }
 

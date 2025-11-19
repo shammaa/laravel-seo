@@ -22,7 +22,7 @@ final class MultilingualBuilder
             return;
         }
 
-        $currentUrl = $currentUrl ?? request()->url();
+        $currentUrl = $currentUrl ?? $this->getCurrentUrl();
         $currentLocale = app()->getLocale();
         $locales = $multilingualConfig['locales'];
         $defaultLocale = $multilingualConfig['default_locale'] ?? $currentLocale;
@@ -76,6 +76,22 @@ final class MultilingualBuilder
                ($parsedUrl['host'] ?? '') . 
                $path . 
                (!empty($parsedUrl['query']) ? '?' . $parsedUrl['query'] : '');
+    }
+
+    /**
+     * Get current URL safely (works in console and HTTP contexts)
+     */
+    private function getCurrentUrl(): string
+    {
+        if (app()->runningInConsole()) {
+            return config('app.url', 'http://localhost');
+        }
+        
+        try {
+            return request()->url();
+        } catch (\Exception $e) {
+            return config('app.url', 'http://localhost');
+        }
     }
 }
 

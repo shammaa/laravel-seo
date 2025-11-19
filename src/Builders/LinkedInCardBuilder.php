@@ -50,7 +50,7 @@ final class LinkedInCardBuilder
         }
 
         // Support for image route helper
-        if (function_exists('route') && ($this->config['image_route'] ?? null)) {
+        if (!$this->isRunningInConsole() && function_exists('route') && ($this->config['image_route'] ?? null)) {
             $routeName = $this->config['image_route']['name'] ?? 'image';
             $size = $this->config['image_route']['linkedin_size'] ?? '1200x627';
             
@@ -65,6 +65,14 @@ final class LinkedInCardBuilder
         }
 
         return asset($imagePath);
+    }
+
+    /**
+     * Check if running in console
+     */
+    private function isRunningInConsole(): bool
+    {
+        return app()->runningInConsole();
     }
 }
 
