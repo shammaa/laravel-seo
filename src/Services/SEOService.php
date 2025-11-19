@@ -568,7 +568,7 @@ final class SEOService
                 'name' => $siteConfig['name'] ?? config('app.name'),
                 'description' => $siteConfig['description'] ?? '',
                 'logo' => $this->getLogoUrl($siteConfig['logo'] ?? null),
-                'url' => $siteConfig['url'] ?? url('/'),
+                'url' => $siteConfig['url'] ?? $this->getDefaultUrl(),
                 'locale' => $locale,
             ];
         });
@@ -585,7 +585,7 @@ final class SEOService
         }
 
         // Support for image route helper
-        if (function_exists('route') && $this->config['image_route'] ?? null) {
+        if (!$this->isRunningInConsole() && function_exists('route') && $this->config['image_route'] ?? null) {
             $routeName = $this->config['image_route']['name'] ?? 'image';
             $size = $this->config['image_route']['logo_size'] ?? '265x85';
             
@@ -602,6 +602,46 @@ final class SEOService
         return asset($logoPath);
     }
 
+    /**
+     * Get default URL safely (works in console and HTTP contexts)
+     */
+    private function getDefaultUrl(): string
+    {
+        if ($this->isRunningInConsole()) {
+            return config('app.url', 'http://localhost');
+        }
+        
+        try {
+            return url('/');
+        } catch (\Exception $e) {
+            return config('app.url', 'http://localhost');
+        }
+    }
+
+    /**
+     * Check if running in console
+     */
+    private function isRunningInConsole(): bool
+    {
+        return app()->runningInConsole();
+    }
+
+    /**
+     * Get current URL safely (works in console and HTTP contexts)
+     */
+    private function getCurrentUrl(): string
+    {
+        if ($this->isRunningInConsole()) {
+            return config('app.url', 'http://localhost');
+        }
+        
+        try {
+            return request()->url();
+        } catch (\Exception $e) {
+            return config('app.url', 'http://localhost');
+        }
+    }
+
     private function buildBasicJsonLd(PageData $pageData): void
     {
         $imageUrl = $this->normalizeImageUrl($pageData->image);
@@ -614,7 +654,7 @@ final class SEOService
             'headline' => $pageData->title,
             'name' => $pageData->title,
             'description' => $pageData->description,
-            'url' => request()->url(),
+            'url' => $this->getCurrentUrl(),
             'image' => $imageUrl,
             'inLanguage' => $siteData['locale'] ?? app()->getLocale(),
         ]);

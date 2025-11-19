@@ -38,7 +38,8 @@ class HealthCheckCommand extends Command
             $success[] = 'Site description configured';
         }
 
-        if (empty($siteUrl) || $siteUrl === url('/')) {
+        $defaultUrl = config('app.url', 'http://localhost');
+        if (empty($siteUrl) || $siteUrl === $defaultUrl) {
             $warnings[] = 'Site URL not configured or using default';
         } else {
             $success[] = 'Site URL configured';
