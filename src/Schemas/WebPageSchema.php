@@ -19,7 +19,7 @@ final class WebPageSchema
             '@context' => 'https://schema.org',
             '@type' => 'WebPage',
             'name' => $pageData->title,
-            'url' => request()->url(),
+            'url' => $this->getCurrentUrl(),
             'speakable' => [
                 '@type' => 'SpeakableSpecification',
                 'cssSelector' => ['.article-header'],

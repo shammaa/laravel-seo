@@ -145,7 +145,7 @@ final class BreadcrumbSchema
         }
 
         // Parent category
-        if (isset($model->parent) && isset($model->parent_id) && $model->parent_id) {
+        if (!$this->isRunningInConsole() && isset($model->parent) && isset($model->parent_id) && $model->parent_id) {
             $parent = $model->parent;
             if (method_exists($parent, 'route')) {
                 try {
@@ -316,7 +316,7 @@ final class BreadcrumbSchema
         }
 
         // Parent page (if exists)
-        if (isset($model->parent) && isset($model->parent_id) && $model->parent_id) {
+        if (!$this->isRunningInConsole() && isset($model->parent) && isset($model->parent_id) && $model->parent_id) {
             $parent = $model->parent;
             if (method_exists($parent, 'route')) {
                 try {
@@ -341,6 +341,14 @@ final class BreadcrumbSchema
         ];
 
         return $items;
+    }
+
+    /**
+     * Check if running in console
+     */
+    private function isRunningInConsole(): bool
+    {
+        return app()->runningInConsole();
     }
 }
 

@@ -132,7 +132,7 @@ final class NewsArticleSchema
                 'name' => $model->writer->name ?? $siteData['name'],
             ];
 
-            if (isset($model->writer->id) && method_exists($model->writer, 'route')) {
+            if (!$this->isRunningInConsole() && isset($model->writer->id) && method_exists($model->writer, 'route')) {
                 try {
                     $authorSchema['url'] = $model->writer->route();
                 } catch (\Exception $e) {

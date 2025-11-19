@@ -676,7 +676,7 @@ final class SEOService
         }
 
         // Support for image route helper
-        if (function_exists('route') && $this->config['image_route'] ?? null) {
+        if (!$this->isRunningInConsole() && function_exists('route') && $this->config['image_route'] ?? null) {
             $routeName = $this->config['image_route']['name'] ?? 'image';
             $size = $this->config['image_route']['og_size'] ?? '1200x630';
             
@@ -706,7 +706,7 @@ final class SEOService
         }
         
         // Default: add /amp/ prefix
-        if (is_object($model) && method_exists($model, 'route')) {
+        if (!$this->isRunningInConsole() && is_object($model) && method_exists($model, 'route')) {
             try {
                 $baseUrl = $model->route();
                 return str_replace('/posts/', '/amp/posts/', $baseUrl);
@@ -729,7 +729,7 @@ final class SEOService
         $links = [];
         
         // Previous link
-        if (is_object($model) && isset($model->previous) && $model->previous) {
+        if (!$this->isRunningInConsole() && is_object($model) && isset($model->previous) && $model->previous) {
             if (method_exists($model->previous, 'route')) {
                 try {
                     $links['prev'] = $model->previous->route();
@@ -740,7 +740,7 @@ final class SEOService
         }
         
         // Next link
-        if (is_object($model) && isset($model->next) && $model->next) {
+        if (!$this->isRunningInConsole() && is_object($model) && isset($model->next) && $model->next) {
             if (method_exists($model->next, 'route')) {
                 try {
                     $links['next'] = $model->next->route();
