@@ -81,24 +81,7 @@ Professional SEO package for Laravel with comprehensive support for OpenGraph, T
 
 ## Installation
 
-### Step 1: Add Repository to composer.json
-
-Since this package is hosted on GitHub, you need to add the repository to your project's `composer.json`:
-
-**Edit your project's `composer.json` and add:**
-
-```json
-{
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/shammaa/laravel-seo"
-        }
-    ]
-}
-```
-
-### Step 2: Install via Composer
+### Install via Composer
 
 After adding the repository, you can install the package:
 
