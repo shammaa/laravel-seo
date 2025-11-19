@@ -83,15 +83,13 @@ Professional SEO package for Laravel with comprehensive support for OpenGraph, T
 
 ### Install via Composer
 
-After adding the repository, you can install the package:
-
 ```bash
 composer require shammaa/laravel-seo
 ```
 
-But you'll still need to add the repository to `composer.json` for future updates.
+**That's it!** The package will be installed automatically.
 
-### Step 3: Publish Configuration
+### Publish Configuration
 
 ```bash
 php artisan vendor:publish --tag=seo-config
