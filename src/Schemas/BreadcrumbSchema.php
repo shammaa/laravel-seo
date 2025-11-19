@@ -92,7 +92,7 @@ final class BreadcrumbSchema
 
         if ($category) {
             // Parent category
-            if (isset($category->parent) && isset($category->parent_id) && $category->parent_id) {
+            if (!$this->isRunningInConsole() && isset($category->parent) && isset($category->parent_id) && $category->parent_id) {
                 $parent = $category->parent;
                 if (method_exists($parent, 'route')) {
                     try {
@@ -109,7 +109,7 @@ final class BreadcrumbSchema
             }
 
             // Category
-            if (method_exists($category, 'route')) {
+            if (!$this->isRunningInConsole() && method_exists($category, 'route')) {
                 try {
                     $items[] = [
                         '@type' => 'ListItem',
