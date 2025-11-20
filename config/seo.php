@@ -22,7 +22,7 @@ return [
     'site' => [
         'name' => env('SEO_SITE_NAME', config('app.name')),
         'description' => env('SEO_SITE_DESCRIPTION', ''),
-        'url' => env('SEO_SITE_URL', url('/')),
+        'url' => env('SEO_SITE_URL', config('app.url')),
         'logo' => env('SEO_SITE_LOGO', null), // Path to logo image
         'publisher' => env('SEO_SITE_PUBLISHER', null), // Publisher name (defaults to site name)
         'locale' => env('SEO_SITE_LOCALE', null), // Override locale for og:locale (defaults to app.locale)
