@@ -23,6 +23,7 @@ Professional SEO package for Laravel with comprehensive support for OpenGraph, T
 ## Features
 
 ### Core SEO Features
+
 - ✅ **Meta Tags** - Title, Description, Keywords, Robots, Canonical
 - ✅ **OpenGraph Tags** - Complete Facebook sharing support
 - ✅ **Twitter Cards** - Summary and large image cards with reading time
@@ -30,7 +31,9 @@ Professional SEO package for Laravel with comprehensive support for OpenGraph, T
 - ✅ **Article Tags** - Automatic article:tag generation from model relationships
 
 ### Schema.org Structured Data (JSON-LD) - 22+ Types
+
 **Core Schemas:**
+
 - ✅ **NewsArticle** - For blog posts and articles with author, publisher, dates
 - ✅ **Product** - For e-commerce products with price, offers, ratings, shipping
 - ✅ **Offer** - Enhanced with shipping details and return policy
@@ -48,6 +51,7 @@ Professional SEO package for Laravel with comprehensive support for OpenGraph, T
 - ✅ **Event** - For event announcements and coverage
 
 **New Advanced Schemas:**
+
 - ✅ **Course** - For educational courses with provider, instances, ratings
 - ✅ **Recipe** - For recipes with ingredients, instructions, nutrition info
 - ✅ **JobPosting** - For job listings with salary, location, requirements
@@ -58,6 +62,7 @@ Professional SEO package for Laravel with comprehensive support for OpenGraph, T
 - ✅ **Podcast** - For podcasts with episodes, author, publisher
 
 ### Advanced Features
+
 - ✅ **Multilingual Support** - Hreflang tags for multiple languages
 - ✅ **Reading Time** - Automatic calculation and display in Twitter Cards and Schema
 - ✅ **AMP Support** - Automatic AMP link generation
@@ -73,6 +78,7 @@ Professional SEO package for Laravel with comprehensive support for OpenGraph, T
 - ✅ **Commands** - `seo:test-schema` and `seo:health-check` for validation
 
 ### Developer Experience
+
 - ✅ **Easy Facade API** - Simple, fluent interface
 - ✅ **Fully Configurable** - Comprehensive config file
 - ✅ **Automatic Detection** - Smart model attribute detection
@@ -182,6 +188,7 @@ public function show(Product $product)
 ```
 
 **Product Schema automatically includes:**
+
 - Product name, description, images
 - SKU, MPN, GTIN
 - Brand information
@@ -270,12 +277,13 @@ SEO::post($article)->set()->addFAQ([
 ```
 
 **From Database (with HasSEO trait):**
+
 ```php
 // In your Model
 class Post extends Model
 {
     use HasSEO;
-    
+
     public function faqs()
     {
         return $this->hasMany(FAQ::class);
@@ -291,6 +299,7 @@ SEO::post($post)->set(); // Automatically detects and adds FAQs
 For tutorial and instructional articles:
 
 **Simple Steps:**
+
 ```php
 SEO::post($tutorial)->set()->addHowTo(
     name: 'How to Cook Kabsa',
@@ -306,6 +315,7 @@ SEO::post($tutorial)->set()->addHowTo(
 ```
 
 **Detailed Steps:**
+
 ```php
 SEO::post($tutorial)->set()->addHowTo(
     name: 'How to Build a Website',
@@ -326,12 +336,13 @@ SEO::post($tutorial)->set()->addHowTo(
 ```
 
 **From Database (with HasSEO trait):**
+
 ```php
 // In your Model
 class Post extends Model
 {
     use HasSEO;
-    
+
     public function steps()
     {
         return $this->hasMany(TutorialStep::class)->orderBy('order');
@@ -358,12 +369,13 @@ SEO::post($review)->set()->addReview(
 ```
 
 **From Database (with HasSEO trait):**
+
 ```php
 // In your Model
 class Post extends Model
 {
     use HasSEO;
-    
+
     public function review()
     {
         return $this->hasOne(Review::class);
@@ -393,12 +405,13 @@ SEO::post($event)->set()->addEvent(
 ```
 
 **From Database (with HasSEO trait):**
+
 ```php
 // In your Model
 class Post extends Model
 {
     use HasSEO;
-    
+
     public function event()
     {
         return $this->hasOne(Event::class);
@@ -792,6 +805,7 @@ Add geographic targeting meta tags for location-based SEO:
 ```
 
 This automatically generates:
+
 - `geo.region` meta tag
 - `geo.placename` meta tag
 - `geo.position` meta tag
@@ -857,6 +871,7 @@ php artisan seo:test-schema --format=table
 ```
 
 This command:
+
 - Fetches the page HTML
 - Extracts all JSON-LD schemas
 - Validates JSON structure
@@ -871,6 +886,7 @@ php artisan seo:health-check
 ```
 
 This command checks:
+
 - ✅ Site configuration (name, description, URL)
 - ✅ Social media settings (Twitter, Facebook)
 - ✅ Analytics setup (GA4, GTM)
@@ -886,6 +902,7 @@ For complete examples of Controller and Model integration for all page types, se
 - **[EXAMPLES_TEST.md](EXAMPLES_TEST.md)** - Ready-to-use code examples you can copy and paste
 
 These guides include:
+
 - ✅ Full Model examples for all page types
 - ✅ Full Controller examples
 - ✅ Migration examples
@@ -917,38 +934,38 @@ use Shammaa\LaravelSEO\Traits\HasSEO;
 class Post extends Model
 {
     use HasSEO;
-    
+
     // Define relationships
     public function writer()
     {
         return $this->belongsTo(Writer::class);
     }
-    
+
     public function categories()
     {
         return $this->belongsToMany(Category::class);
     }
-    
+
     public function tags()
     {
         return $this->belongsToMany(Tag::class);
     }
-    
+
     public function faqs()
     {
         return $this->hasMany(FAQ::class)->orderBy('order');
     }
-    
+
     public function steps()
     {
         return $this->hasMany(TutorialStep::class)->orderBy('order');
     }
-    
+
     public function review()
     {
         return $this->hasOne(Review::class);
     }
-    
+
     public function event()
     {
         return $this->hasOne(Event::class);
@@ -963,12 +980,13 @@ public function show(Post $post)
 {
     // That's it! The library does everything automatically
     SEO::post($post)->set();
-    
+
     return view('posts.show', compact('post'));
 }
 ```
 
 **The library automatically:**
+
 - ✅ Loads required relationships (eager loading)
 - ✅ Detects FAQs from relationship or JSON column
 - ✅ Detects HowTo steps from relationship or JSON column
@@ -1065,17 +1083,17 @@ class Post extends Model
     public function getSEORelationshipsToLoad(): array
     {
         $relationships = parent::getSEORelationshipsToLoad();
-        
+
         // Example: If Post is tutorial type, ensure steps are loaded
         if ($this->type === 'tutorial') {
             $relationships[] = 'steps';
         }
-        
+
         // Example: If Post is review type, ensure review is loaded
         if ($this->type === 'review') {
             $relationships[] = 'review';
         }
-        
+
         return array_unique($relationships);
     }
 }
@@ -1147,6 +1165,7 @@ class Post extends Model
 The package automatically detects model attributes. Here's what it looks for:
 
 #### Post Model
+
 - **Title**: `title`, `name`
 - **Description**: `content`, `text`, `description`
 - **Image**: `photo`, `image`, `thumbnail`
@@ -1155,6 +1174,7 @@ The package automatically detects model attributes. Here's what it looks for:
 - **Optional**: `slug`, `video_url`
 
 #### Category Model
+
 - **Name**: `name`, `title`
 - **Description**: `description` (optional)
 - **Image**: `photo`, `image`, `thumbnail` (optional)
@@ -1162,6 +1182,7 @@ The package automatically detects model attributes. Here's what it looks for:
 - **Method**: `route()` (optional, for breadcrumb URLs)
 
 #### Product Model (E-commerce)
+
 - **Name**: `name`, `title`, `product_name`
 - **Description**: `description`, `product_description`
 - **Image**: `image`, `photo`, `product_image`
@@ -1176,18 +1197,22 @@ The package automatically detects model attributes. Here's what it looks for:
 - **Properties**: `color`, `size`, `material`, `weight`, `height`, `width`, `depth` (optional)
 
 #### Tag Model
+
 - **Name**: `name`, `title`
 - **Method**: `route()` (optional, for breadcrumb URLs)
 
 #### Author Model
+
 - **Name**: `name`, `username`, `title`
 - **Method**: `route()` (optional, for breadcrumb URLs)
 
 #### Archive (String or Object)
+
 - **String**: Date string like `"2024-01"` or `"January 2024"`
 - **Object**: Model with `name`, `title`, or `date` attribute
 
 #### Page Model (Static Pages)
+
 - **Name**: `title`, `name`
 - **Relationships**: `parent` (optional, for breadcrumbs)
 - **Method**: `route()` (optional, for breadcrumb URLs)
@@ -1204,22 +1229,26 @@ Enable multilingual SEO with hreflang tags:
     'locales' => ['ar', 'en', 'fr'],
     'default_locale' => 'ar',
     'x_default' => true,
-    'url_generator' => function($locale, $model, $currentUrl) {
-        // Custom URL generation logic
-        return str_replace('/ar/', "/{$locale}/", $currentUrl);
-    },
 ],
 ```
 
 **Custom URL Generator Example:**
+
+To customize hreflang URLs, register a global URL generator using the `MultilingualBuilder` static method:
+
 ```php
-'url_generator' => function($locale, $model, $currentUrl) {
+use Shammaa\LaravelSEO\Builders\MultilingualBuilder;
+
+MultilingualBuilder::urlGeneratorUsing(function ($locale, $model, $currentUrl) {
+    // Custom URL generation logic
     if ($model && method_exists($model, 'getLocalizedUrl')) {
         return $model->getLocalizedUrl($locale);
     }
     return str_replace('/en/', "/{$locale}/", $currentUrl);
-},
+});
 ```
+
+This approach allows you to define custom logic globally, and supports dynamic or model-based URL generation.
 
 ### Reading Time
 
@@ -1247,11 +1276,13 @@ Reading time is automatically calculated and displayed:
 ```
 
 **Translation Format:**
+
 - Use `:minutes` placeholder for the number of minutes
 - The library automatically replaces `:minutes` with the calculated value
 - If a translation for the current locale is not found, it falls back to English
 
 **Customization:**
+
 ```php
 'reading_time' => [
     'translations' => [
@@ -1263,10 +1294,12 @@ Reading time is automatically calculated and displayed:
 ```
 
 Reading time is automatically:
+
 - Added to Twitter Cards as `twitter:label1` and `twitter:data1`
 - Added to NewsArticle Schema as `timeRequired` (ISO 8601 format: PT5M)
 
 **Using ReadingTimeCalculator directly:**
+
 ```php
 use Shammaa\LaravelSEO\Helpers\ReadingTimeCalculator;
 
@@ -1277,9 +1310,9 @@ $iso8601 = ReadingTimeCalculator::toIso8601($content);
 // Returns: "PT5M"
 
 $formatted = ReadingTimeCalculator::format(
-    $content, 
-    200, 
-    'ar', 
+    $content,
+    200,
+    'ar',
     config('seo.reading_time.translations')
 );
 // Returns: "5 دقيقة قراءة" (or custom translation from config)
@@ -1320,6 +1353,7 @@ Adds `<link rel="alternate" type="application/rss+xml">` tag.
 Automatically adds `<link rel="prev">` and `<link rel="next">` tags if your model has `previous` and `next` relationships with `route()` methods.
 
 **Model Example:**
+
 ```php
 class Post extends Model
 {
@@ -1329,7 +1363,7 @@ class Post extends Model
             ->orderBy('id', 'desc')
             ->first();
     }
-    
+
     public function next()
     {
         return static::where('id', '>', $this->id)
@@ -1509,6 +1543,7 @@ Customize default texts:
 You can configure SEO via environment variables:
 
 ### Basic Settings
+
 ```env
 SEO_SITE_NAME="Your Site Name"
 SEO_SITE_DESCRIPTION="Your site description"
@@ -1519,6 +1554,7 @@ SEO_CACHE_TTL=86400
 ```
 
 ### Social Media
+
 ```env
 SEO_TWITTER_SITE="@yourhandle"
 SEO_TWITTER_CREATOR="@yourhandle"
@@ -1527,6 +1563,7 @@ SEO_FACEBOOK_APP_ID="your-app-id"
 ```
 
 ### Multilingual
+
 ```env
 SEO_MULTILINGUAL_ENABLED=true
 SEO_MULTILINGUAL_LOCALES=["ar","en"]
@@ -1536,29 +1573,34 @@ SEO_BREADCRUMB_HOME_LABEL="Home"
 ```
 
 ### Reading Time
+
 ```env
 SEO_READING_TIME_ENABLED=true
 SEO_READING_TIME_WPM=200
 ```
 
 ### AMP
+
 ```env
 SEO_AMP_ENABLED=true
 ```
 
 ### RSS
+
 ```env
 SEO_RSS_ENABLED=true
 SEO_RSS_URL="/feed"
 ```
 
 ### Performance
+
 ```env
 SEO_IMAGE_LOADING="lazy"
 SEO_IMAGE_DECODING="async"
 ```
 
 ### Mobile
+
 ```env
 SEO_MOBILE_THEME_COLOR="#ffffff"
 SEO_APPLE_MOBILE_WEB_APP=true
@@ -1567,6 +1609,7 @@ SEO_MOBILE_MANIFEST="/manifest.json"
 ```
 
 ### Security
+
 ```env
 SEO_CSP="default-src 'self'"
 SEO_REFERRER_POLICY="strict-origin-when-cross-origin"
@@ -1575,6 +1618,7 @@ SEO_X_CONTENT_TYPE_OPTIONS="nosniff"
 ```
 
 ### Analytics
+
 ```env
 SEO_GA4_MEASUREMENT_ID="G-XXXXXXXXXX"
 SEO_GTM_CONTAINER_ID="GTM-XXXXXXX"
@@ -1583,6 +1627,7 @@ SEO_FACEBOOK_PIXEL_ID="123456789012345"
 ```
 
 ### Organization
+
 ```env
 SEO_ORG_NAME="Your Organization"
 SEO_ORG_ALTERNATE_NAME="Alternate Name"
@@ -1598,48 +1643,62 @@ SEO_ORG_FOUNDING_DATE="2011"
 ### Facade Methods
 
 #### `SEO::for(string $pageType, $model = null)`
+
 Set page type and model.
 
 #### `SEO::home()`
+
 Set page type to home.
 
 #### `SEO::post($model)`
+
 Set page type to post with model.
 
 #### `SEO::category($model)`
+
 Set page type to category with model.
 
 #### `SEO::search(array $params)`
+
 Set page type to search with query parameters.
 
 #### `SEO::set()`
+
 Generate and set all SEO tags. Must be called after setting page type.
 
 #### `SEO::render()`
+
 Render all SEO tags as HTML string. Automatically calls `set()` if not called.
 
 #### `SEO::breadcrumb()`
+
 Get breadcrumb items as array.
 
 #### `SEO::addFAQ(array $faqs)`
+
 Add FAQ schema. Returns self for chaining.
 
 **Parameters:**
+
 - `$faqs` - Array of FAQ items, each with `question` and `answer` keys
 
 #### `SEO::addHowTo(string $name, array $steps, ?string $description = null, ?string $image = null)`
+
 Add HowTo schema. Returns self for chaining.
 
 **Parameters:**
+
 - `$name` - Name of the HowTo
 - `$steps` - Array of steps (strings or arrays with `name`, `text`, `image`, `url`)
 - `$description` - Optional description
 - `$image` - Optional image URL
 
 #### `SEO::addReview(string $itemName, float $ratingValue, float $bestRating = 5.0, ?string $reviewBody = null, ?string $authorName = null, ?string $datePublished = null)`
+
 Add Review schema. Returns self for chaining.
 
 **Parameters:**
+
 - `$itemName` - Name of the item being reviewed
 - `$ratingValue` - Rating value (e.g., 4.5)
 - `$bestRating` - Best possible rating (default: 5.0)
@@ -1648,9 +1707,11 @@ Add Review schema. Returns self for chaining.
 - `$datePublished` - Optional publication date (ISO 8601 format)
 
 #### `SEO::addEvent(string $name, string $startDate, ?string $endDate = null, ?string $description = null, ?string $locationName = null, ?string $locationAddress = null, ?string $image = null, ?string $organizerName = null, ?string $organizerUrl = null)`
+
 Add Event schema. Returns self for chaining.
 
 **Parameters:**
+
 - `$name` - Event name
 - `$startDate` - Start date (ISO 8601 format)
 - `$endDate` - Optional end date (ISO 8601 format)
@@ -1662,27 +1723,34 @@ Add Event schema. Returns self for chaining.
 - `$organizerUrl` - Optional organizer URL
 
 #### `SEO::product($model)`
+
 Set page type to product with model.
 
 #### `SEO::addProduct($model)`
+
 Add Product schema. Returns self for chaining. Automatically called when using `SEO::product()->set()`.
 
 **Parameters:**
+
 - `$model` - Product model with price, brand, category, etc.
 
 #### `SEO::addAggregateRating(float $ratingValue, int $ratingCount, float $bestRating = 5.0, float $worstRating = 1.0)`
+
 Add AggregateRating schema. Returns self for chaining.
 
 **Parameters:**
+
 - `$ratingValue` - Average rating value (e.g., 4.5)
 - `$ratingCount` - Number of ratings/reviews
 - `$bestRating` - Best possible rating (default: 5.0)
 - `$worstRating` - Worst possible rating (default: 1.0)
 
 #### `SEO::addBrand(string $name, ?string $logo = null, ?string $url = null)`
+
 Add Brand schema. Returns self for chaining.
 
 **Parameters:**
+
 - `$name` - Brand name
 - `$logo` - Optional brand logo URL
 - `$url` - Optional brand website URL
@@ -1690,57 +1758,75 @@ Add Brand schema. Returns self for chaining.
 ### HasSEO Trait Methods
 
 #### `getSEOFieldMap(): array`
+
 Define field mappings for your model. Override in your model.
 
 #### `getSEORelationships(): array`
+
 Define relationship names for your model. Override in your model.
 
 #### `getSEORelationshipsToLoad(): array`
+
 Define which relationships to eager load. Override in your model.
 
 #### `getSEOTitle(): ?string`
+
 Get SEO title from model.
 
 #### `getSEODescription(): ?string`
+
 Get SEO description from model.
 
 #### `getSEOImage(): ?string`
+
 Get SEO image from model.
 
 #### `getSEOKeywords(): array`
+
 Get SEO keywords from model (from tags and categories).
 
 #### `getSEOAuthor(): ?string`
+
 Get SEO author name from model.
 
 #### `getSEOPublishedAt(): ?string`
+
 Get published date in ISO 8601 format.
 
 #### `getSEOModifiedAt(): ?string`
+
 Get modified date in ISO 8601 format.
 
 #### `getSEOFAQs(): array`
+
 Get FAQs for FAQ schema. Override for custom logic.
 
 #### `getSEOHowToSteps(): array`
+
 Get HowTo steps. Override for custom logic.
 
 #### `getSEOReview(): ?array`
+
 Get Review data. Override for custom logic.
 
 #### `getSEOEvent(): ?array`
+
 Get Event data. Override for custom logic.
 
 #### `hasSEOFAQs(): bool`
+
 Check if model has FAQs.
 
 #### `hasSEOHowToSteps(): bool`
+
 Check if model has HowTo steps.
 
 #### `hasSEOReview(): bool`
+
 Check if model has Review data.
 
 #### `hasSEOEvent(): bool`
+
 Check if model has Event data.
 
 ## Examples
@@ -1755,7 +1841,7 @@ public function show(Post $post)
 {
     // Basic SEO setup
     SEO::post($post)->set();
-    
+
     // Add FAQ if article has questions
     if ($post->has_faq) {
         SEO::addFAQ([
@@ -1763,7 +1849,7 @@ public function show(Post $post)
             ['question' => 'How does it work?', 'answer' => 'It works by...'],
         ]);
     }
-    
+
     // Add HowTo if it's a tutorial
     if ($post->is_tutorial) {
         SEO::addHowTo(
@@ -1773,7 +1859,7 @@ public function show(Post $post)
             image: $post->image
         );
     }
-    
+
     // Add Review if it's a review article
     if ($post->is_review && $post->rating) {
         SEO::addReview(
@@ -1784,7 +1870,7 @@ public function show(Post $post)
             authorName: $post->writer->name ?? null
         );
     }
-    
+
     return view('posts.show', compact('post'));
 }
 ```
@@ -1796,10 +1882,10 @@ public function show(Post $post)
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     {{-- SEO Meta Tags --}}
     {!! SEO::render() !!}
-    
+
     {{-- Custom Schemas (JSON-LD) --}}
     {!! $customSchemas ?? '' !!}
 </head>
@@ -1808,7 +1894,7 @@ public function show(Post $post)
     @if(isset($breadcrumbs))
         @include('seo::breadcrumb')
     @endif
-    
+
     <main>
         @yield('content')
     </main>
@@ -1823,7 +1909,7 @@ public function show(Post $post)
 class Post extends Model
 {
     use HasSEO;
-    
+
     protected function getSEOFieldMap(): array
     {
         return [
@@ -1834,7 +1920,7 @@ class Post extends Model
             'modified_at' => ['updated_at', 'modified_at'],
         ];
     }
-    
+
     protected function getSEORelationships(): array
     {
         return [
@@ -1847,22 +1933,22 @@ class Post extends Model
             'event' => 'event',
         ];
     }
-    
+
     public function faqs()
     {
         return $this->hasMany(FAQ::class)->orderBy('order');
     }
-    
+
     public function steps()
     {
         return $this->hasMany(TutorialStep::class)->orderBy('order');
     }
-    
+
     public function review()
     {
         return $this->hasOne(Review::class);
     }
-    
+
     public function event()
     {
         return $this->hasOne(Event::class);
@@ -1873,7 +1959,7 @@ class Post extends Model
 public function show(Post $post)
 {
     SEO::post($post)->set(); // Automatically detects and loads everything!
-    
+
     return view('posts.show', compact('post'));
 }
 ```
@@ -1889,7 +1975,7 @@ if ($post->faqs && $post->faqs->isNotEmpty()) {
             'answer' => $faq->answer,
         ];
     })->toArray();
-    
+
     SEO::addFAQ($faqs);
 }
 
@@ -1902,7 +1988,7 @@ if ($post->steps && $post->steps->isNotEmpty()) {
             'image' => $step->image,
         ];
     })->toArray();
-    
+
     SEO::addHowTo($post->title, $steps);
 }
 
@@ -1941,12 +2027,14 @@ if ($post->event) {
 **Focus:** Content, articles, news
 **Schemas:** NewsArticle, WebPage, BreadcrumbList
 **Key Features:**
+
 - Article metadata (author, publisher, dates)
 - Reading time
 - Categories and tags
 - FAQ, HowTo, Review, Event schemas
 
 **Example:**
+
 ```php
 SEO::post($article)->set();
 ```
@@ -1956,6 +2044,7 @@ SEO::post($article)->set();
 **Focus:** Products, sales, shopping
 **Schemas:** Product, Offer, AggregateRating, Brand
 **Key Features:**
+
 - Product metadata (SKU, MPN, GTIN)
 - Price and offers
 - Availability status
@@ -1964,6 +2053,7 @@ SEO::post($article)->set();
 - Product properties (color, size, material)
 
 **Example:**
+
 ```php
 SEO::product($product)->set();
 ```
@@ -1985,11 +2075,13 @@ SEO::product($product)->set();
 ### Tags Not Appearing
 
 1. **Check if `set()` is called:**
+
    ```php
    SEO::post($post)->set(); // Must call set() first
    ```
 
 2. **Check if `render()` is called in view:**
+
    ```blade
    {!! SEO::render() !!}
    ```
@@ -2002,6 +2094,7 @@ SEO::product($product)->set();
 ### Model Data Not Detected
 
 1. **Check field mappings:**
+
    ```php
    protected function getSEOFieldMap(): array
    {
@@ -2024,6 +2117,7 @@ SEO::product($product)->set();
 ### Breadcrumb Not Showing
 
 1. **Check if breadcrumb is shared:**
+
    ```blade
    @if(isset($breadcrumbs))
        @include('seo::breadcrumb')
@@ -2037,6 +2131,7 @@ SEO::product($product)->set();
 ### Reading Time Not Showing
 
 1. **Check if enabled:**
+
    ```php
    'reading_time' => [
        'enabled' => true,
@@ -2052,11 +2147,13 @@ SEO::product($product)->set();
 ### Schemas Not Auto-Detected
 
 1. **Check if HasSEO trait is used:**
+
    ```php
    use Shammaa\LaravelSEO\Traits\HasSEO;
    ```
 
 2. **Check relationships:**
+
    ```php
    public function faqs() {
        return $this->hasMany(FAQ::class);
@@ -2126,11 +2223,13 @@ SEO_TWITTER_SITE="@yourhandle"
 ### 6. Test Your Schemas
 
 Use Google's Rich Results Test:
+
 - https://search.google.com/test/rich-results
 
 ### 7. Validate JSON-LD
 
 Use JSON-LD Playground:
+
 - https://json-ld.org/playground/
 
 ### 8. Monitor Performance
@@ -2176,6 +2275,7 @@ Site data is cached for 24 hours by default (configurable via `SEO_CACHE_TTL`). 
 ### View Sharing
 
 The package automatically shares data with views:
+
 - `$customSchemas` - All JSON-LD schemas
 - `$breadcrumbs` - Breadcrumb items (for post/category pages)
 - `$performanceTags` - Performance optimization tags
