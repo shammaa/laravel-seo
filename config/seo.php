@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -232,7 +234,6 @@ return [
         'locales' => env('SEO_MULTILINGUAL_LOCALES', ['ar', 'en']), // Array of supported locales
         'default_locale' => env('SEO_MULTILINGUAL_DEFAULT', 'ar'),
         'x_default' => env('SEO_MULTILINGUAL_X_DEFAULT', true), // Add x-default hreflang
-        'url_generator' => null, // Callable: function($locale, $model, $currentUrl) { return $url; }
     ],
 
     /*
@@ -501,4 +502,3 @@ return [
         ],
     ],
 ];
-

@@ -30,6 +30,9 @@
             "Shammaa\\LaravelSEO\\Tests\\": "tests/"
         }
     },
+    "scripts": {
+        "test": "phpunit --colors=never tests"
+    },
     "extra": {
         "laravel": {
             "providers": [
@@ -43,4 +46,3 @@
     "minimum-stability": "stable",
     "prefer-stable": true
 }
-
