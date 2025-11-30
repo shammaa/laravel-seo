@@ -8,10 +8,26 @@ use Shammaa\LaravelSEO\Services\MetaTagsManager;
 
 final class MultilingualBuilder
 {
+    /**
+     * Global URL generator callback
+     */
+    private static ?callable $urlGenerator = null;
+
     public function __construct(
         private array $config = [],
         private MetaTagsManager $metaTagsManager
     ) {
+    }
+
+    /**
+     * Register a global custom URL generator
+     * 
+     * @param callable $callback Function signature: (string $locale, $model, string $currentUrl): string
+     * @return void
+     */
+    public static function urlGeneratorUsing(callable $callback): void
+    {
+        self::$urlGenerator = $callback;
     }
 
     public function build($model = null, ?string $currentUrl = null): void
@@ -52,6 +68,12 @@ final class MultilingualBuilder
         ?callable $urlGenerator,
         $model = null
     ): ?string {
+        // Use global URL generator if set (takes priority)
+        if (self::$urlGenerator && is_callable(self::$urlGenerator)) {
+            return call_user_func(self::$urlGenerator, $targetLocale, $model, $currentUrl);
+        }
+
+        // Fallback to config URL generator
         if ($urlGenerator && is_callable($urlGenerator)) {
             return $urlGenerator($targetLocale, $model, $currentUrl);
         }

@@ -1211,7 +1211,7 @@ Enable multilingual SEO with hreflang tags:
 ],
 ```
 
-**Custom URL Generator Example:**
+**Custom URL Generator (via Config):**
 ```php
 'url_generator' => function($locale, $model, $currentUrl) {
     if ($model && method_exists($model, 'getLocalizedUrl')) {
@@ -1220,6 +1220,26 @@ Enable multilingual SEO with hreflang tags:
     return str_replace('/en/', "/{$locale}/", $currentUrl);
 },
 ```
+
+**Custom URL Generator (via Static Method - Recommended):**
+
+Register a global custom URL generator (e.g., in a service provider or boot method):
+
+```php
+use Shammaa\LaravelSEO\Builders\MultilingualBuilder;
+
+MultilingualBuilder::urlGeneratorUsing(function (string $locale, $model, string $currentUrl): string {
+    // If your model exposes a localized URL, prefer that:
+    if ($model && method_exists($model, 'getLocalizedUrl')) {
+        return $model->getLocalizedUrl($locale);
+    }
+
+    // Example fallback that rewrites the path segment
+    return str_replace('/en/', "/{$locale}/", $currentUrl);
+});
+```
+
+**Note:** The static method takes priority over the config `url_generator`. This allows you to set a global URL generator that works across your entire application without modifying the config file.
 
 ### Reading Time
 
