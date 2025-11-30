@@ -10,8 +10,10 @@ final class MultilingualBuilder
 {
     /**
      * Global URL generator callback
+     * 
+     * @var callable|null
      */
-    private static ?callable $urlGenerator = null;
+    private static mixed $urlGenerator = null;
 
     public function __construct(
         private array $config = [],
