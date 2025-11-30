@@ -226,13 +226,29 @@ return [
     |
     | Configuration for multilingual SEO with hreflang tags
     |
+    | IMPORTANT: Do NOT set 'url_generator' to a closure/function in this config file
+    | if you plan to use 'php artisan config:cache'. Closures cannot be serialized.
+    |
+    | Instead, use MultilingualBuilder::urlGeneratorUsing() in your Service Provider:
+    |
+    | use Shammaa\LaravelSEO\Builders\MultilingualBuilder;
+    |
+    | MultilingualBuilder::urlGeneratorUsing(function (string $locale, $model, string $currentUrl): string {
+    |     if ($model && method_exists($model, 'getLocalizedUrl')) {
+    |         return $model->getLocalizedUrl($locale);
+    |     }
+    |     return str_replace('/en/', "/{$locale}/", $currentUrl);
+    | });
+    |
     */
     'multilingual' => [
         'enabled' => env('SEO_MULTILINGUAL_ENABLED', false),
         'locales' => env('SEO_MULTILINGUAL_LOCALES', ['ar', 'en']), // Array of supported locales
         'default_locale' => env('SEO_MULTILINGUAL_DEFAULT', 'ar'),
         'x_default' => env('SEO_MULTILINGUAL_X_DEFAULT', true), // Add x-default hreflang
-        'url_generator' => null, // Callable: function($locale, $model, $currentUrl) { return $url; }
+        // DEPRECATED: Use MultilingualBuilder::urlGeneratorUsing() instead
+        // Setting a closure here will break 'php artisan config:cache'
+        'url_generator' => null,
     ],
 
     /*

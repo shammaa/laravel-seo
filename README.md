@@ -1204,15 +1204,45 @@ Enable multilingual SEO with hreflang tags:
     'locales' => ['ar', 'en', 'fr'],
     'default_locale' => 'ar',
     'x_default' => true,
-    'url_generator' => function($locale, $model, $currentUrl) {
-        // Custom URL generation logic
-        return str_replace('/ar/', "/{$locale}/", $currentUrl);
-    },
 ],
 ```
 
-**Custom URL Generator (via Config):**
+**Custom URL Generator (via Static Method - Recommended):**
+
+⚠️ **Important:** Do NOT set `url_generator` to a closure in your config file if you plan to use `php artisan config:cache`. Closures cannot be serialized and will cause the cache command to fail.
+
+Instead, register a global custom URL generator in your Service Provider:
+
 ```php
+use Shammaa\LaravelSEO\Builders\MultilingualBuilder;
+
+// In AppServiceProvider or a custom Service Provider
+public function boot(): void
+{
+    MultilingualBuilder::urlGeneratorUsing(function (string $locale, $model, string $currentUrl): string {
+        // If your model exposes a localized URL, prefer that:
+        if ($model && method_exists($model, 'getLocalizedUrl')) {
+            return $model->getLocalizedUrl($locale);
+        }
+
+        // Example fallback that rewrites the path segment
+        return str_replace('/en/', "/{$locale}/", $currentUrl);
+    });
+}
+```
+
+**Why use the static method?**
+- ✅ Works with `php artisan config:cache`
+- ✅ Can be registered in Service Provider
+- ✅ Takes priority over config `url_generator`
+- ✅ More flexible and maintainable
+
+**Legacy Config Method (Not Recommended):**
+
+If you're not using `config:cache`, you can still use the config method (for backward compatibility):
+
+```php
+// ⚠️ WARNING: This will break 'php artisan config:cache'
 'url_generator' => function($locale, $model, $currentUrl) {
     if ($model && method_exists($model, 'getLocalizedUrl')) {
         return $model->getLocalizedUrl($locale);
@@ -1220,26 +1250,6 @@ Enable multilingual SEO with hreflang tags:
     return str_replace('/en/', "/{$locale}/", $currentUrl);
 },
 ```
-
-**Custom URL Generator (via Static Method - Recommended):**
-
-Register a global custom URL generator (e.g., in a service provider or boot method):
-
-```php
-use Shammaa\LaravelSEO\Builders\MultilingualBuilder;
-
-MultilingualBuilder::urlGeneratorUsing(function (string $locale, $model, string $currentUrl): string {
-    // If your model exposes a localized URL, prefer that:
-    if ($model && method_exists($model, 'getLocalizedUrl')) {
-        return $model->getLocalizedUrl($locale);
-    }
-
-    // Example fallback that rewrites the path segment
-    return str_replace('/en/', "/{$locale}/", $currentUrl);
-});
-```
-
-**Note:** The static method takes priority over the config `url_generator`. This allows you to set a global URL generator that works across your entire application without modifying the config file.
 
 ### Reading Time
 
@@ -2089,6 +2099,43 @@ SEO::product($product)->set();
    // But you can manually load if needed:
    $post->load('faqs', 'steps', 'review', 'event');
    ```
+
+### Config Cache Error (LogicException)
+
+**Error:**
+```
+LogicException: Your configuration files could not be serialized because 
+the value at "seo.multilingual.url_generator" is non-serializable.
+```
+
+**Cause:**
+This error occurs when you try to run `php artisan config:cache` after setting `url_generator` to a closure/function in your config file. Closures cannot be serialized.
+
+**Solution:**
+Use the static method `MultilingualBuilder::urlGeneratorUsing()` instead of setting a closure in the config file:
+
+```php
+// ❌ DON'T DO THIS (breaks config:cache)
+'url_generator' => function($locale, $model, $currentUrl) {
+    return $url;
+},
+
+// ✅ DO THIS INSTEAD (works with config:cache)
+// In AppServiceProvider::boot()
+use Shammaa\LaravelSEO\Builders\MultilingualBuilder;
+
+MultilingualBuilder::urlGeneratorUsing(function (string $locale, $model, string $currentUrl): string {
+    if ($model && method_exists($model, 'getLocalizedUrl')) {
+        return $model->getLocalizedUrl($locale);
+    }
+    return str_replace('/en/', "/{$locale}/", $currentUrl);
+});
+```
+
+**If you already cached config:**
+```bash
+php artisan config:clear
+```
 
 ## Best Practices
 
