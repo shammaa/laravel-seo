@@ -283,10 +283,26 @@ return [
     |
     | Configuration for AMP pages
     |
+    | IMPORTANT: Do NOT set 'url_generator' to a closure/function in this config file
+    | if you plan to use 'php artisan config:cache'. Closures cannot be serialized.
+    |
+    | Instead, use SEOService::ampUrlGeneratorUsing() in your Service Provider:
+    |
+    | use Shammaa\LaravelSEO\Services\SEOService;
+    |
+    | SEOService::ampUrlGeneratorUsing(function ($model): string {
+    |     if (is_object($model) && method_exists($model, 'route')) {
+    |         return $model->route() . '/amp';
+    |     }
+    |     return url('/') . '/amp';
+    | });
+    |
     */
     'amp' => [
         'enabled' => env('SEO_AMP_ENABLED', false),
-        'url_generator' => null, // Callable: function($model) { return $ampUrl; }
+        // DEPRECATED: Use SEOService::ampUrlGeneratorUsing() instead
+        // Setting a closure here will break 'php artisan config:cache'
+        'url_generator' => null,
     ],
 
     /*

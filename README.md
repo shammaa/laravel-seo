@@ -1317,12 +1317,31 @@ $formatted = ReadingTimeCalculator::format(
 
 ### AMP (Accelerated Mobile Pages) Support
 
+⚠️ **Important:** Do NOT set `url_generator` to a closure in your config file if you plan to use `php artisan config:cache`. Closures cannot be serialized and will cause the cache command to fail.
+
+**Recommended approach:** Register the URL generator in your Service Provider:
+
+```php
+use Shammaa\LaravelSEO\Services\SEOService;
+
+// In your AppServiceProvider or a dedicated service provider
+public function boot(): void
+{
+    SEOService::ampUrlGeneratorUsing(function ($model): string {
+        if (is_object($model) && method_exists($model, 'route')) {
+            return $model->route() . '/amp';
+        }
+        return route('amp.post', $model->slug ?? '');
+    });
+}
+```
+
+**Config file (optional, for simple cases):**
+
 ```php
 'amp' => [
     'enabled' => true,
-    'url_generator' => function($model) {
-        return route('amp.post', $model->slug);
-    },
+    'url_generator' => null, // Keep null, use SEOService::ampUrlGeneratorUsing() instead
 ],
 ```
 
@@ -2135,7 +2154,7 @@ MultilingualBuilder::urlGeneratorUsing(function (string $locale, $model, string 
 **If you already cached config:**
 ```bash
 php artisan config:clear
-```
+   ```
 
 ## Best Practices
 

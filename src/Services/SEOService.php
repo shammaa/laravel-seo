@@ -20,6 +20,13 @@ use Illuminate\Support\Str;
 
 final class SEOService
 {
+    /**
+     * Global AMP URL generator callback
+     * 
+     * @var callable|null
+     */
+    private static mixed $ampUrlGenerator = null;
+
     private ?string $pageType = null;
     private $model = null;
     private array $config = [];
@@ -33,6 +40,17 @@ final class SEOService
         private JsonLdManager $jsonLdManager
     ) {
         $this->config = $config;
+    }
+
+    /**
+     * Register a global custom AMP URL generator
+     * 
+     * @param callable $callback Function signature: function($model): string
+     * @return void
+     */
+    public static function ampUrlGeneratorUsing(callable $callback): void
+    {
+        self::$ampUrlGenerator = $callback;
     }
 
     public function for(string $pageType, $model = null): self
@@ -697,12 +715,19 @@ final class SEOService
     {
         $ampConfig = $this->config['amp'] ?? [];
         
-        if (empty($ampConfig['enabled']) || empty($ampConfig['url_generator'])) {
+        if (empty($ampConfig['enabled'])) {
             return null;
         }
-        
-        if (is_callable($ampConfig['url_generator'])) {
-            return $ampConfig['url_generator']($model);
+
+        // Use global AMP URL generator if set (takes priority)
+        if (self::$ampUrlGenerator && is_callable(self::$ampUrlGenerator)) {
+            return call_user_func(self::$ampUrlGenerator, $model);
+        }
+
+        // Fallback to config URL generator
+        $urlGenerator = $ampConfig['url_generator'] ?? null;
+        if ($urlGenerator && is_callable($urlGenerator)) {
+            return $urlGenerator($model);
         }
         
         // Default: add /amp/ prefix
