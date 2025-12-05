@@ -16,6 +16,8 @@ use Shammaa\LaravelSEO\Builders\SecurityBuilder;
 use Shammaa\LaravelSEO\Builders\AnalyticsBuilder;
 use Shammaa\LaravelSEO\Schemas\BreadcrumbSchema;
 use Shammaa\LaravelSEO\Data\PageData;
+use Shammaa\LaravelSEO\Services\SEOValidator;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 final class SEOService
@@ -39,7 +41,15 @@ final class SEOService
         private TwitterCardManager $twitterCardManager,
         private JsonLdManager $jsonLdManager
     ) {
-        $this->config = $config;
+        try {
+            SEOValidator::validateConfig($config, false); // Don't throw, just validate
+            $this->config = $config;
+        } catch (\Exception $e) {
+            Log::warning('SEO config validation failed', [
+                'error' => $e->getMessage(),
+            ]);
+            $this->config = $config; // Use config anyway
+        }
     }
 
     /**
@@ -87,16 +97,22 @@ final class SEOService
         return $this->for('product', $model);
     }
 
+    /**
+     * Set SEO data for the current page.
+     *
+     * @return void
+     */
     public function set(): void
     {
-        // Reset all managers to avoid duplicates
-        $this->metaTagsManager->reset();
-        $this->openGraphManager->reset();
-        $this->twitterCardManager->reset();
-        $this->jsonLdManager->reset();
-        
-        $pageData = $this->getPageData();
-        $siteData = $this->getSiteData();
+        try {
+            // Reset all managers to avoid duplicates
+            $this->metaTagsManager->reset();
+            $this->openGraphManager->reset();
+            $this->twitterCardManager->reset();
+            $this->jsonLdManager->reset();
+            
+            $pageData = $this->getPageData();
+            $siteData = $this->getSiteData();
 
         // Build Meta Tags
         (new MetaTagsBuilder($this->config, $this->metaTagsManager))->build($pageData, $this->pageType, $this->model);
@@ -166,19 +182,42 @@ final class SEOService
             }
         }
         
-        // Share pagination links if available
-        if (!empty($this->config['pagination']['enabled']) && $this->model) {
-            $pagination = $this->getPaginationLinks($this->model);
-            if ($pagination) {
-                view()->share('paginationLinks', $pagination);
+            // Share pagination links if available
+            if (!empty($this->config['pagination']['enabled']) && $this->model) {
+                $pagination = $this->getPaginationLinks($this->model);
+                if ($pagination) {
+                    view()->share('paginationLinks', $pagination);
+                }
             }
+        } catch (\Exception $e) {
+            Log::error('SEO set() failed', [
+                'page_type' => $this->pageType,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            // Don't throw - allow page to render without SEO tags
         }
     }
 
+    /**
+     * Render SEO meta tags as HTML string.
+     *
+     * @return string
+     */
     public function render(): string
     {
-        $this->set();
-        return view('seo::meta-tags')->render();
+        try {
+            $this->set();
+            return view('seo::meta-tags')->render();
+        } catch (\Exception $e) {
+            Log::error('SEO render() failed', [
+                'page_type' => $this->pageType,
+                'error' => $e->getMessage(),
+            ]);
+            
+            return ''; // Return empty string on error
+        }
     }
 
     /**
@@ -220,14 +259,26 @@ final class SEOService
     /**
      * Add AggregateRating Schema
      */
+    /**
+     * Add AggregateRating Schema.
+     *
+     * @param float $ratingValue The rating value
+     * @param int $ratingCount The number of ratings
+     * @param float $bestRating The best rating value
+     * @param float $worstRating The worst rating value
+     * @return self
+     */
     public function addAggregateRating(
         float $ratingValue,
         int $ratingCount,
         float $bestRating = 5.0,
         float $worstRating = 1.0
     ): self {
-        $aggregateRatingSchema = new \Shammaa\LaravelSEO\Schemas\AggregateRatingSchema($this->config);
-        $schema = $aggregateRatingSchema->build($ratingValue, $ratingCount, $bestRating, $worstRating);
+        try {
+            SEOValidator::validateRating($ratingValue, $bestRating);
+            
+            $aggregateRatingSchema = new \Shammaa\LaravelSEO\Schemas\AggregateRatingSchema($this->config);
+            $schema = $aggregateRatingSchema->build($ratingValue, $ratingCount, $bestRating, $worstRating);
         
         if (!empty($schema)) {
             $customSchemas = view()->getShared()['customSchemas'] ?? '';
@@ -235,30 +286,59 @@ final class SEOService
             $schemas[] = $schema;
             view()->share('customSchemas', $this->renderSchemas($schemas));
         }
+        } catch (\Exception $e) {
+            Log::error('SEO addAggregateRating() failed', [
+                'rating_value' => $ratingValue,
+                'rating_count' => $ratingCount,
+                'error' => $e->getMessage(),
+            ]);
+        }
         
         return $this;
     }
 
     /**
-     * Add Brand Schema
+     * Add Brand Schema.
+     *
+     * @param string $name The brand name
+     * @param string|null $logo The logo URL
+     * @param string|null $url The brand URL
+     * @return self
      */
     public function addBrand(string $name, ?string $logo = null, ?string $url = null): self
     {
-        $brandSchema = new \Shammaa\LaravelSEO\Schemas\BrandSchema($this->config);
-        $schema = $brandSchema->build($name, $logo, $url);
-        
-        if (!empty($schema)) {
-            $customSchemas = view()->getShared()['customSchemas'] ?? '';
-            $schemas = $this->parseSchemas($customSchemas);
-            $schemas[] = $schema;
-            view()->share('customSchemas', $this->renderSchemas($schemas));
+        try {
+            if (!empty($logo)) {
+                SEOValidator::validateImageUrl($logo, false);
+            }
+            if (!empty($url)) {
+                SEOValidator::validateUrl($url, false);
+            }
+            
+            $brandSchema = new \Shammaa\LaravelSEO\Schemas\BrandSchema($this->config);
+            $schema = $brandSchema->build($name, $logo, $url);
+            
+            if (!empty($schema)) {
+                $customSchemas = view()->getShared()['customSchemas'] ?? '';
+                $schemas = $this->parseSchemas($customSchemas);
+                $schemas[] = $schema;
+                view()->share('customSchemas', $this->renderSchemas($schemas));
+            }
+        } catch (\Exception $e) {
+            Log::error('SEO addBrand() failed', [
+                'name' => $name,
+                'error' => $e->getMessage(),
+            ]);
         }
         
         return $this;
     }
 
     /**
-     * Add FAQ Schema
+     * Add FAQ Schema.
+     *
+     * @param array $faqs Array of FAQ items
+     * @return self
      */
     public function addFAQ(array $faqs): self
     {

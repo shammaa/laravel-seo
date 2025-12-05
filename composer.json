@@ -20,6 +20,10 @@
         "phpunit/phpunit": "^10.0",
         "orchestra/testbench": "^8.0|^9.0"
     },
+    "scripts": {
+        "test": "phpunit",
+        "test-coverage": "phpunit --coverage-html coverage"
+    },
     "autoload": {
         "psr-4": {
             "Shammaa\\LaravelSEO\\": "src/"
