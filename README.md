@@ -302,6 +302,30 @@ public function show(CustomModel $model)
 }
 ```
 
+### Author Handling
+
+The package automatically detects the author from your model relationships. It checks for relationships named: `writer`, `author`, `user`, or `creator`.
+
+If the relationship is found, it will generate a rich **Person** schema with the author's name, image, and URL, instead of the generic Organization schema.
+
+#### Manually Setting Author (`withAuthor`)
+
+If you need to manually specify the author (e.g., if the relationship is missing, has a non-standard name, or you want to override it), you can use the `withAuthor()` method:
+
+```php
+public function show(Post $post)
+{
+    // Provide the User/Author model directly
+    $author = User::find(1);
+    
+    SEO::post($post)
+        ->withAuthor($author)
+        ->set();
+        
+    return view('post.show', compact('post'));
+}
+```
+
 ### Advanced Schema Usage
 
 #### FAQ Schema
@@ -1418,9 +1442,9 @@ The package provides comprehensive pagination SEO support:
 'pagination' => [
     'enabled' => true,
     
-    // Canonical URL for paginated pages points to the first page
-    // /articles/page/2 → canonical: /articles
-    'canonical_to_first' => true,
+    // Canonical URL for paginated pages points to self (?page=2)
+    // /articles?page=2 → canonical: /articles?page=2
+    'canonical_to_first' => false,
     
     // Paginated pages get "noindex, follow" to prevent duplicate content
     'noindex_pagination' => false, // Set to true if you want noindex on /page/2
@@ -1432,8 +1456,8 @@ The package provides comprehensive pagination SEO support:
 | Page | URL | Canonical |
 |------|-----|-----------|
 | First page | `/articles` | `/articles` |
-| Page 2 | `/articles/page/2` | `/articles` ← points to first |
-| Page 2 (query) | `/articles?page=2` | `/articles` ← points to first |
+| Page 2 | `/articles?page=2` | `/articles?page=2` (Self-referencing) |
+| Page 2 (config to first) | `/articles?page=2` | `/articles` |
 
 #### Robots Directive
 
@@ -1442,7 +1466,7 @@ The package provides comprehensive pagination SEO support:
 | `noindex_pagination: false` | `index, follow` | `index, follow` |
 | `noindex_pagination: true` | `index, follow` | `noindex, follow` |
 
-**Recommendation:** Use `canonical_to_first: true` (default) to consolidate link equity. Only enable `noindex_pagination` if you have severe duplicate content issues.
+**Recommendation:** Use `canonical_to_first: false` (default) to ensure paginated content is indexed. Only enable `canonical_to_first: true` if you have identical content across pages (which is rare for archives).
 
 #### Prev/Next Links
 

@@ -309,8 +309,18 @@ final class PageDataExtractor
 
     private function getAuthor($model, array $siteData): string
     {
-        if (is_object($model) && isset($model->writer) && $model->writer) {
-            return $model->writer->name ?? $siteData['name'];
+        if (!is_object($model)) {
+            return $siteData['name'];
+        }
+
+        // List of possible relationship names
+        $relations = ['writer', 'author', 'user', 'creator'];
+
+        foreach ($relations as $relation) {
+            if (isset($model->$relation) && is_object($model->$relation)) {
+                $author = $model->$relation;
+                return $author->name ?? $author->display_name ?? $siteData['name'];
+            }
         }
 
         return $siteData['name'];

@@ -116,12 +116,23 @@ final class NewsArticleSchema
 
     private function buildAuthor($model, array $siteData): array
     {
-        if (is_object($model) && isset($model->writer) && $model->writer) {
+        $authorModel = $this->getAuthorModel($model);
+
+        if ($authorModel) {
             $writerImageUrl = null;
             
-            if (!empty($model->writer->photo)) {
+            // Check for photo/image/avatar
+            $imageField = null;
+            foreach (['photo', 'image', 'avatar', 'profile_photo_path'] as $field) {
+                if (!empty($authorModel->$field)) {
+                    $imageField = $field;
+                    break;
+                }
+            }
+
+            if ($imageField) {
                 try {
-                    $writerImageUrl = $this->getImageUrl($model->writer->photo, '400x400');
+                    $writerImageUrl = $this->getImageUrl($authorModel->$imageField, '400x400');
                 } catch (\Exception $e) {
                     $writerImageUrl = null;
                 }
@@ -129,14 +140,22 @@ final class NewsArticleSchema
 
             $authorSchema = [
                 '@type' => 'Person',
-                'name' => $model->writer->name ?? $siteData['name'],
+                'name' => $authorModel->name ?? $authorModel->display_name ?? $siteData['name'],
             ];
 
-            if (!$this->isRunningInConsole() && isset($model->writer->id) && method_exists($model->writer, 'route')) {
-                try {
-                    $authorSchema['url'] = $model->writer->route();
-                } catch (\Exception $e) {
-                    $authorSchema['url'] = $siteData['url'];
+            // Try to get URL
+            if (!$this->isRunningInConsole()) {
+                if (method_exists($authorModel, 'route')) {
+                    try {
+                        $authorSchema['url'] = $authorModel->route();
+                    } catch (\Exception $e) {
+                        $authorSchema['url'] = $siteData['url'];
+                    }
+                } elseif (isset($authorModel->slug)) {
+                    // Start of fallback URL generation
+                     $authorSchema['url'] = url('/author/' . $authorModel->slug);
+                } else {
+                     $authorSchema['url'] = $siteData['url'];
                 }
             } else {
                 $authorSchema['url'] = $siteData['url'];
@@ -159,6 +178,24 @@ final class NewsArticleSchema
             'url' => $siteData['url'],
             'sameAs' => $sameAs,
         ];
+    }
+
+    private function getAuthorModel($model)
+    {
+        if (!is_object($model)) {
+            return null;
+        }
+
+        // List of possible relationship names
+        $relations = ['writer', 'author', 'user', 'creator'];
+
+        foreach ($relations as $relation) {
+            if (isset($model->$relation) && is_object($model->$relation)) {
+                return $model->$relation;
+            }
+        }
+
+        return null;
     }
 
     private function buildPublisher(array $siteData): array
