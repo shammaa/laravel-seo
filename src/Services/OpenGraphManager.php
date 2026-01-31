@@ -83,7 +83,9 @@ final class OpenGraphManager
 
         // Properties
         foreach ($this->properties as $property => $value) {
-            $html .= '<meta property="' . e($property, false) . '" content="' . e($value, false) . '">' . PHP_EOL;
+            // We decode entities first to ensure no double encoding, then encode once without double encoding
+            $content = e(htmlspecialchars_decode((string)$value), false);
+            $html .= '<meta property="' . e($property, false) . '" content="' . $content . '">' . PHP_EOL;
         }
 
         // Images

@@ -88,7 +88,8 @@ final class MetaTagsManager
 
         // Description
         if ($this->description) {
-            $html .= '<meta name="description" content="' . e($this->description, false) . '">' . PHP_EOL;
+            $description = e(htmlspecialchars_decode($this->description), false);
+            $html .= '<meta name="description" content="' . $description . '">' . PHP_EOL;
         }
 
         // Canonical
@@ -107,8 +108,10 @@ final class MetaTagsManager
             } elseif ($type === 'http-equiv') {
                 $html .= '<meta http-equiv="' . $name . '" content="' . $content . '">' . PHP_EOL;
             } elseif ($type === 'property') {
+                $content = e(htmlspecialchars_decode((string)$meta['content']), false);
                 $html .= '<meta property="' . $name . '" content="' . $content . '">' . PHP_EOL;
             } else {
+                $content = e(htmlspecialchars_decode((string)$meta['content']), false);
                 $html .= '<meta name="' . $name . '" content="' . $content . '">' . PHP_EOL;
             }
         }
