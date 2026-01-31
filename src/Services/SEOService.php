@@ -602,6 +602,7 @@ final class SEOService
         return $this;
     }
 
+
     /**
      * Add Movie Schema
      */

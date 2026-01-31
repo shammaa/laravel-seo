@@ -328,6 +328,32 @@ public function show(Post $post)
 
 ### Advanced Schema Usage
 
+#### Video Schema
+
+For pages containing a main video:
+
+```php
+SEO::post($post)->set()->addVideo([
+    'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    'title' => 'My Video Title', // Optional, defaults to page title
+    'description' => 'Video description', // Optional, defaults to page description
+    'image' => 'https://example.com/thumb.jpg', // Optional, defaults to page image
+    'uploadDate' => '2024-01-01', // Optional
+]);
+```
+
+**Automatic Detection:**
+If your model has a `video_url` attribute or accessor, the package automatically adds the Video Schema.
+
+```php
+// In Post Model
+public function getVideoUrlAttribute()
+{
+    // Return Youtube/Vimeo URL
+    return $this->meta['video_link'] ?? null;
+}
+```
+
 #### FAQ Schema
 
 For articles with frequently asked questions:
