@@ -142,7 +142,7 @@ final class SEOService
             $siteData = $this->getSiteData();
 
         // Build Meta Tags
-        (new MetaTagsBuilder($this->config, $this->metaTagsManager))->build($pageData, $this->pageType, $this->model);
+        (new MetaTagsBuilder($this->config, $this->metaTagsManager))->build($pageData, $this->pageType, $this->model, $siteData);
 
         // Build OpenGraph (Facebook)
         (new OpenGraphBuilder($this->config, $this->openGraphManager))->build($pageData, $this->pageType, $siteData);

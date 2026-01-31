@@ -31,7 +31,7 @@ final class MetaTagsBuilder
         }
     }
 
-    public function build(PageData $pageData, string $pageType, $model): void
+    public function build(PageData $pageData, string $pageType, $model, array $siteData = []): void
     {
         $this->metaTagsManager->setTitle($pageData->title);
         $this->metaTagsManager->setDescription($pageData->description);
@@ -46,7 +46,7 @@ final class MetaTagsBuilder
         $this->metaTagsManager->addMeta('author', $pageData->author);
         $this->metaTagsManager->addMeta('robots', $pageData->robots);
         
-        $publisher = $this->config['site']['publisher'] ?? $this->config['site']['name'] ?? '';
+        $publisher = $this->config['site']['publisher'] ?? $siteData['name'] ?? $this->config['site']['name'] ?? '';
         if (!empty($publisher)) {
             $this->metaTagsManager->addMeta('publisher', $publisher);
         }

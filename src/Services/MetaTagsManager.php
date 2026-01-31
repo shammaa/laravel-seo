@@ -80,7 +80,10 @@ final class MetaTagsManager
 
         // Title
         if ($this->title) {
-            $html .= '<title>' . e($this->title, false) . '</title>' . PHP_EOL;
+            // For the title tag, we decode entities to show literal characters like " in source
+            // We use strip_tags for safety to ensure no HTML breaks the title
+            $title = htmlspecialchars_decode(strip_tags($this->title));
+            $html .= '<title>' . $title . '</title>' . PHP_EOL;
         }
 
         // Description
