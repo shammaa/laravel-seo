@@ -146,14 +146,24 @@ final class SEOService
 
     /**
      * Set the author model explicitly for the current page/post.
-     * This overrides the auto-detected author relationship.
      * 
      * @param mixed $author The author model (User/Writer)
+     * @param string|null $url Custom author URL (optional)
+     * @param string|null $image Custom author image URL/field (optional)
      * @return self
      */
-    public function withAuthor($author): self
+    public function withAuthor($author, ?string $url = null, ?string $image = null): self
     {
         if ($this->model instanceof \Illuminate\Database\Eloquent\Model) {
+            
+            // Attach overrides if provided
+            if ($url) {
+                $author->_seo_custom_url = $url;
+            }
+            if ($image) {
+                $author->_seo_custom_image = $image;
+            }
+
             // We set 'writer' relation as it's the first one checked by NewsArticleSchema
             $this->model->setRelation('writer', $author);
             // We also set 'author' for good measure

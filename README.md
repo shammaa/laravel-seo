@@ -310,16 +310,34 @@ If the relationship is found, it will generate a rich **Person** schema with the
 
 #### Manually Setting Author (`withAuthor`)
 
-If you need to manually specify the author (e.g., if the relationship is missing, has a non-standard name, or you want to override it), you can use the `withAuthor()` method:
+If you need to manually specify the author, or override the author's URL/Image without verifying model methods, you can use `withAuthor()` with extra arguments:
 
 ```php
 public function show(Post $post)
 {
-    // Provide the User/Author model directly
-    $author = User::find(1);
+    // 1. Just set the author model (Auto-detects URL/Image)
+    SEO::post($post)->withAuthor($user)->set();
     
+    // 2. Override Author URL and Image Field Name
     SEO::post($post)
-        ->withAuthor($author)
+        ->withAuthor(
+            $user, 
+            url: 'https://mysite.com/authors/custom-url', // Custom URL
+            image: 'avatar_url' // Custom image field name in User model
+        )
+        ->set();
+
+    // 3. Override Author URL and Image URL directly
+    SEO::post($post)
+        ->withAuthor(
+            $user, 
+            url: 'https://mysite.com/authors/me',
+            image: 'https://mysite.com/images/me.jpg' // Direct Image URL
+        )
+    // 4. Use Route Name (Recommended)
+    // Automatically calls route('authors.show', $user)
+    SEO::post($post)
+        ->withAuthor($user, 'authors.show')
         ->set();
         
     return view('post.show', compact('post'));

@@ -121,20 +121,37 @@ final class NewsArticleSchema
         if ($authorModel) {
             $writerImageUrl = null;
             
-            // Check for photo/image/avatar
-            $imageField = null;
-            foreach (['photo', 'image', 'avatar', 'profile_photo_path'] as $field) {
-                if (!empty($authorModel->$field)) {
-                    $imageField = $field;
-                    break;
+            // 1. Check for Custom Image Override
+            if (!empty($authorModel->_seo_custom_image)) {
+                $img = $authorModel->_seo_custom_image;
+                // If it looks like a URL, use it directly, otherwise treat as field name
+                if (filter_var($img, FILTER_VALIDATE_URL)) {
+                    $writerImageUrl = $img;
+                } elseif (isset($authorModel->$img)) {
+                    // It's a field name
+                    try {
+                        $writerImageUrl = $this->getImageUrl($authorModel->$img, '400x400');
+                    } catch (\Exception $e) { $writerImageUrl = null; }
                 }
             }
+            
+            // 2. Fallback to auto-detection
+            if (!$writerImageUrl) {
+                // Check for photo/image/avatar
+                $imageField = null;
+                foreach (['photo', 'image', 'avatar', 'profile_photo_path'] as $field) {
+                    if (!empty($authorModel->$field)) {
+                        $imageField = $field;
+                        break;
+                    }
+                }
 
-            if ($imageField) {
-                try {
-                    $writerImageUrl = $this->getImageUrl($authorModel->$imageField, '400x400');
-                } catch (\Exception $e) {
-                    $writerImageUrl = null;
+                if ($imageField) {
+                    try {
+                        $writerImageUrl = $this->getImageUrl($authorModel->$imageField, '400x400');
+                    } catch (\Exception $e) {
+                        $writerImageUrl = null;
+                    }
                 }
             }
 
@@ -143,22 +160,38 @@ final class NewsArticleSchema
                 'name' => $authorModel->name ?? $authorModel->display_name ?? $siteData['name'],
             ];
 
-            // Try to get URL
-            if (!$this->isRunningInConsole()) {
-                if (method_exists($authorModel, 'route')) {
-                    try {
-                        $authorSchema['url'] = $authorModel->route();
-                    } catch (\Exception $e) {
-                        $authorSchema['url'] = $siteData['url'];
-                    }
-                } elseif (isset($authorModel->slug)) {
-                    // Start of fallback URL generation
-                     $authorSchema['url'] = url('/author/' . $authorModel->slug);
-                } else {
-                     $authorSchema['url'] = $siteData['url'];
-                }
+            // 3. Check for Custom URL Override (URL or Route Name)
+            if (!empty($authorModel->_seo_custom_url)) {
+                 $custom = $authorModel->_seo_custom_url;
+                 
+                 if (filter_var($custom, FILTER_VALIDATE_URL)) {
+                     $authorSchema['url'] = $custom;
+                 } else {
+                     // Treat as route name
+                     try {
+                         $authorSchema['url'] = route($custom, $authorModel);
+                     } catch (\Exception $e) {
+                         // If route fails, fall back to site URL
+                         $authorSchema['url'] = $siteData['url'];
+                     }
+                 }
             } else {
-                $authorSchema['url'] = $siteData['url'];
+                // Try to get URL automatically
+                if (!$this->isRunningInConsole()) {
+                    if (method_exists($authorModel, 'route')) {
+                        try {
+                            $authorSchema['url'] = $authorModel->route();
+                        } catch (\Exception $e) {
+                            $authorSchema['url'] = $siteData['url'];
+                        }
+                    } elseif (isset($authorModel->slug)) {
+                         $authorSchema['url'] = url('/author/' . $authorModel->slug);
+                    } else {
+                         $authorSchema['url'] = $siteData['url'];
+                    }
+                } else {
+                    $authorSchema['url'] = $siteData['url'];
+                }
             }
 
             if ($writerImageUrl) {
