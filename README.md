@@ -1480,6 +1480,22 @@ Adds `<link rel="alternate" type="application/rss+xml">` tag.
 
 ### Pagination Support
 
+To ensure perfect SEO for paginated pages (Canonical, Prev/Next, Robots), simply pass your Paginator instance to the library using `withPagination()`:
+
+```php
+public function show(Tag $tag)
+{
+    // Your pagination logic
+    $articles = $tag->posts()->paginate(15);
+
+    SEO::tag($tag)
+        ->withPagination($articles) // 👈 Pass paginator here
+        ->set();
+        
+    return view('tag.show', compact('tag', 'articles'));
+}
+```
+
 The package provides comprehensive pagination SEO support:
 
 ```php

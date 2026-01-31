@@ -37,8 +37,17 @@ final class MetaTagsBuilder
     /**
      * Get canonical URL - for paginated pages, includes the page parameter
      */
-    private function getCanonicalUrl(): string
+    private function getCanonicalUrl($paginator = null): string
     {
+        // 1. If explicit paginator is provided, use its current page URL
+        if ($paginator && method_exists($paginator, 'url') && method_exists($paginator, 'currentPage')) {
+            try {
+                return $paginator->url($paginator->currentPage());
+            } catch (\Exception $e) {
+                // Fallback
+            }
+        }
+
         $currentUrl = $this->getCurrentUrl();
         
         if (app()->runningInConsole()) {
@@ -115,7 +124,7 @@ final class MetaTagsBuilder
         return $defaultRobots;
     }
 
-    public function build(PageData $pageData, string $pageType, $model, array $siteData = []): void
+    public function build(PageData $pageData, string $pageType, $model, array $siteData = [], $paginator = null): void
     {
         $this->metaTagsManager->setTitle($pageData->title);
         $this->metaTagsManager->setDescription($pageData->description);
@@ -139,7 +148,7 @@ final class MetaTagsBuilder
         }
 
         // Use pagination-aware canonical URL
-        $this->metaTagsManager->setCanonical($this->getCanonicalUrl());
+        $this->metaTagsManager->setCanonical($this->getCanonicalUrl($paginator));
 
         // Article-specific meta tags
         if ($pageType === 'post' && $model && !empty($pageData->publishedAt)) {

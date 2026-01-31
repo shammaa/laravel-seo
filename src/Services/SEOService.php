@@ -144,6 +144,8 @@ final class SEOService
         return $this->for('page', $model);
     }
 
+    private mixed $paginator = null;
+
     /**
      * Set the author model explicitly for the current page/post.
      * 
@@ -174,6 +176,18 @@ final class SEOService
     }
 
     /**
+     * Set the paginator instance for handling pagination links.
+     * 
+     * @param mixed $paginator The Paginator instance (LengthAwarePaginator)
+     * @return self
+     */
+    public function withPagination($paginator): self
+    {
+        $this->paginator = $paginator;
+        return $this;
+    }
+
+    /**
      * Set SEO data for the current page.
      *
      * @return void
@@ -191,7 +205,7 @@ final class SEOService
             $siteData = $this->getSiteData();
 
         // Build Meta Tags
-        (new MetaTagsBuilder($this->config, $this->metaTagsManager))->build($pageData, $this->pageType, $this->model, $siteData);
+        (new MetaTagsBuilder($this->config, $this->metaTagsManager))->build($pageData, $this->pageType, $this->model, $siteData, $this->paginator);
 
         // Build OpenGraph (Facebook)
         (new OpenGraphBuilder($this->config, $this->openGraphManager))->build($pageData, $this->pageType, $siteData);
@@ -923,7 +937,32 @@ final class SEOService
         
         $links = [];
         
-        // Previous link
+        // 1. Check for manual Paginator
+        if ($this->paginator) {
+             if (method_exists($this->paginator, 'previousPageUrl') && $this->paginator->previousPageUrl()) {
+                 $links['prev'] = $this->paginator->previousPageUrl();
+                 // Clean up prev link if it has ?page=1
+                 if (str_contains($links['prev'], 'page=1')) {
+                     // Check if it's the only param
+                     $info = parse_url($links['prev']);
+                     parse_str($info['query'] ?? '', $query);
+                     if (isset($query['page']) && $query['page'] == 1) {
+                         unset($query['page']);
+                         $newQuery = http_build_query($query);
+                         $links['prev'] = $info['scheme'] . '://' . $info['host'] . ($info['path'] ?? '') . ($newQuery ? '?' . $newQuery : '');
+                     }
+                 }
+             }
+             if (method_exists($this->paginator, 'nextPageUrl') && $this->paginator->nextPageUrl()) {
+                 $links['next'] = $this->paginator->nextPageUrl();
+             }
+             
+             // Allow falling back to model logic IF explicit paginator returned nothing? 
+             // No, if paginator is provided, it should be the authority.
+             return !empty($links) ? $links : null;
+        }
+
+        // 2. Previous link (Model relationship)
         if (!$this->isRunningInConsole() && is_object($model) && isset($model->previous) && $model->previous) {
             if (method_exists($model->previous, 'route')) {
                 try {
@@ -934,7 +973,7 @@ final class SEOService
             }
         }
         
-        // Next link
+        // 3. Next link (Model relationship)
         if (!$this->isRunningInConsole() && is_object($model) && isset($model->next) && $model->next) {
             if (method_exists($model->next, 'route')) {
                 try {
