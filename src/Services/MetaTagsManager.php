@@ -78,46 +78,42 @@ final class MetaTagsManager
     {
         $html = '';
 
-        // Title
+        // Title - keep literal quotes here (safe inside <title> tags)
         if ($this->title) {
-            // For the title tag, we decode entities to show literal characters like " in source
-            // We use strip_tags for safety to ensure no HTML breaks the title
             $title = htmlspecialchars_decode(strip_tags($this->title));
             $html .= '<title>' . $title . '</title>' . PHP_EOL;
         }
 
         // Description
         if ($this->description) {
-            $description = htmlspecialchars(htmlspecialchars_decode($this->description), ENT_NOQUOTES, 'UTF-8', false);
-            $html .= '<meta name="description" content="' . $description . '">' . PHP_EOL;
+            $html .= '<meta name="description" content="' . e($this->description) . '">' . PHP_EOL;
         }
 
         // Canonical
         if ($this->canonical) {
-            $html .= '<link rel="canonical" href="' . $this->canonical . '">' . PHP_EOL;
+            $html .= '<link rel="canonical" href="' . e($this->canonical) . '">' . PHP_EOL;
         }
 
         // Meta tags
         foreach ($this->metas as $meta) {
-            $name = $meta['name'];
+            $name = e($meta['name']);
+            $content = e($meta['content']);
             $type = $meta['type'];
 
             if ($type === 'link') {
-                $html .= '<link rel="' . $name . '" href="' . $meta['content'] . '">' . PHP_EOL;
+                $html .= '<link rel="' . $name . '" href="' . $content . '">' . PHP_EOL;
             } elseif ($type === 'http-equiv') {
-                $html .= '<meta http-equiv="' . $name . '" content="' . $meta['content'] . '">' . PHP_EOL;
+                $html .= '<meta http-equiv="' . $name . '" content="' . $content . '">' . PHP_EOL;
             } elseif ($type === 'property') {
-                $content = htmlspecialchars(htmlspecialchars_decode((string)$meta['content']), ENT_NOQUOTES, 'UTF-8', false);
                 $html .= '<meta property="' . $name . '" content="' . $content . '">' . PHP_EOL;
             } else {
-                $content = htmlspecialchars(htmlspecialchars_decode((string)$meta['content']), ENT_NOQUOTES, 'UTF-8', false);
                 $html .= '<meta name="' . $name . '" content="' . $content . '">' . PHP_EOL;
             }
         }
 
         // Alternate languages
         foreach ($this->alternateLanguages as $alternate) {
-            $html .= '<link rel="alternate" hreflang="' . $alternate['locale'] . '" href="' . $alternate['url'] . '">' . PHP_EOL;
+            $html .= '<link rel="alternate" hreflang="' . e($alternate['locale']) . '" href="' . e($alternate['url']) . '">' . PHP_EOL;
         }
 
         return $html;
