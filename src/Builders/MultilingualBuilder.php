@@ -105,6 +105,9 @@ final class MultilingualBuilder
     /**
      * Get current URL safely (works in console and HTTP contexts)
      */
+    /**
+     * Get current URL safely (works in console and HTTP contexts)
+     */
     private function getCurrentUrl(): string
     {
         if (app()->runningInConsole()) {
@@ -112,7 +115,16 @@ final class MultilingualBuilder
         }
         
         try {
-            return request()->url();
+            $url = request()->url();
+            $page = request()->query('page');
+            
+            // If on page 2+, append page parameter
+            if ($page && (int)$page > 1) {
+                $separator = str_contains($url, '?') ? '&' : '?';
+                $url .= $separator . 'page=' . $page;
+            }
+            
+            return $url;
         } catch (\Exception $e) {
             return config('app.url', 'http://localhost');
         }

@@ -330,8 +330,8 @@ return [
         'enabled' => env('SEO_PAGINATION_ENABLED', true),
         
         // When true, canonical URL for paginated pages (/page/2) points to the first page
-        // This is recommended for SEO to consolidate link equity
-        'canonical_to_first' => env('SEO_PAGINATION_CANONICAL_TO_FIRST', true),
+        // Set to false to allow self-referencing canonicals for paginated pages (Recommended)
+        'canonical_to_first' => env('SEO_PAGINATION_CANONICAL_TO_FIRST', false),
         
         // When true, paginated pages (/page/2, ?page=2) get "noindex, follow"
         // This prevents duplicate content issues while allowing link crawling
