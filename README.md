@@ -1476,6 +1476,48 @@ Configure image loading behavior:
 ],
 ```
 
+### Dynamic Site Configuration (Database)
+
+For projects that store site settings in a database, use the **Dynamic Site Resolver** to fetch settings automatically.
+
+#### Step 1: Add the Interface to Your Model (Optional but Recommended)
+
+```php
+use Shammaa\LaravelSEO\Contracts\SiteSettingsContract;
+
+class Setting extends Model implements SiteSettingsContract
+{
+    public static function getSeoSettings(): array
+    {
+        $settings = static::first();
+        
+        return [
+            'name'        => $settings->site_name,
+            'description' => $settings->site_description,
+            'logo'        => $settings->logo,
+        ];
+    }
+}
+```
+
+#### Step 2: Register in AppServiceProvider
+
+```php
+use Shammaa\LaravelSEO\Services\SEOService;
+
+public function boot(): void
+{
+    SEOService::resolveSiteUsing(fn() => \App\Models\Setting::getSeoSettings());
+}
+```
+
+**That's it!** Now your SEO settings come from the database.
+
+**Benefits:**
+- ✅ **Simple**: Just return an array with `name`, `description`, `logo`
+- ✅ **Cached**: Results are automatically cached (24 hours by default)
+- ✅ **Fallback**: Missing keys fall back to `config/seo.php` values
+
 ## Configuration Reference
 
 ### Site Information

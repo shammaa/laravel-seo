@@ -29,6 +29,13 @@ final class SEOService
      */
     private static mixed $ampUrlGenerator = null;
 
+    /**
+     * Callback used to resolve site data dynamically (e.g., from database)
+     * 
+     * @var callable|null
+     */
+    private static mixed $siteDataResolver = null;
+
     private ?string $pageType = null;
     private $model = null;
     private array $config = [];
@@ -61,6 +68,26 @@ final class SEOService
     public static function ampUrlGeneratorUsing(callable $callback): void
     {
         self::$ampUrlGenerator = $callback;
+    }
+
+    /**
+     * Register a callback to resolve site data from database.
+     * 
+     * Example:
+     * SEOService::resolveSiteUsing(fn() => Setting::getSeoSettings());
+     * 
+     * The callback should return an array with these keys:
+     * - name: Site name
+     * - description: Site description/tagline  
+     * - logo: Logo path or URL
+     * - url: Site URL (optional, defaults to config)
+     * 
+     * @param callable $callback
+     * @return void
+     */
+    public static function resolveSiteUsing(callable $callback): void
+    {
+        self::$siteDataResolver = $callback;
     }
 
     public function for(string $pageType, $model = null): self
@@ -661,6 +688,14 @@ final class SEOService
 
         return cache()->remember($cacheKey, $cacheTtl, function () use ($locale) {
             $siteConfig = $this->config['site'] ?? [];
+
+            // If a custom resolver is registered, use it to fetch data (e.g., from DB)
+            if (self::$siteDataResolver && is_callable(self::$siteDataResolver)) {
+                $dynamicData = call_user_func(self::$siteDataResolver);
+                if (is_array($dynamicData)) {
+                    $siteConfig = array_merge($siteConfig, $dynamicData);
+                }
+            }
 
             return [
                 'name' => $siteConfig['name'] ?? config('app.name'),
