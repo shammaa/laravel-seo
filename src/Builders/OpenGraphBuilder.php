@@ -43,7 +43,7 @@ final class OpenGraphBuilder
             $this->openGraphManager->addProperty('article:modified_time', $pageData->modifiedAt ?? $pageData->publishedAt);
             $this->openGraphManager->addProperty('article:author', $pageData->author);
             
-            $publisher = $this->config['site']['publisher'] ?? $this->config['site']['name'] ?? '';
+            $publisher = $siteData['publisher'] ?? $this->config['site']['publisher'] ?? $siteData['name'] ?? $this->config['site']['name'] ?? '';
             if (!empty($publisher)) {
                 $this->openGraphManager->addProperty('article:publisher', $publisher);
             }

@@ -703,6 +703,7 @@ final class SEOService
                 'logo' => $this->getLogoUrl($siteConfig['logo'] ?? null),
                 'url' => $siteConfig['url'] ?? $this->getDefaultUrl(),
                 'locale' => $locale,
+                'publisher' => htmlspecialchars_decode($siteConfig['publisher'] ?? $siteConfig['name'] ?? config('app.name')),
             ];
         });
     }

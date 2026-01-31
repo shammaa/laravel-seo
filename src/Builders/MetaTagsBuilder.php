@@ -46,7 +46,7 @@ final class MetaTagsBuilder
         $this->metaTagsManager->addMeta('author', $pageData->author);
         $this->metaTagsManager->addMeta('robots', $pageData->robots);
         
-        $publisher = $this->config['site']['publisher'] ?? $siteData['name'] ?? $this->config['site']['name'] ?? '';
+        $publisher = $siteData['publisher'] ?? $this->config['site']['publisher'] ?? $siteData['name'] ?? $this->config['site']['name'] ?? '';
         if (!empty($publisher)) {
             $this->metaTagsManager->addMeta('publisher', $publisher);
         }
