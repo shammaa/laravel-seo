@@ -1412,13 +1412,41 @@ Adds `<link rel="alternate" type="application/rss+xml">` tag.
 
 ### Pagination Support
 
+The package provides comprehensive pagination SEO support:
+
 ```php
 'pagination' => [
     'enabled' => true,
+    
+    // Canonical URL for paginated pages points to the first page
+    // /articles/page/2 → canonical: /articles
+    'canonical_to_first' => true,
+    
+    // Paginated pages get "noindex, follow" to prevent duplicate content
+    'noindex_pagination' => false, // Set to true if you want noindex on /page/2
 ],
 ```
 
-Automatically adds `<link rel="prev">` and `<link rel="next">` tags if your model has `previous` and `next` relationships with `route()` methods.
+#### Canonical URL Behavior
+
+| Page | URL | Canonical |
+|------|-----|-----------|
+| First page | `/articles` | `/articles` |
+| Page 2 | `/articles/page/2` | `/articles` ← points to first |
+| Page 2 (query) | `/articles?page=2` | `/articles` ← points to first |
+
+#### Robots Directive
+
+| Setting | Page 1 | Page 2+ |
+|---------|--------|---------|
+| `noindex_pagination: false` | `index, follow` | `index, follow` |
+| `noindex_pagination: true` | `index, follow` | `noindex, follow` |
+
+**Recommendation:** Use `canonical_to_first: true` (default) to consolidate link equity. Only enable `noindex_pagination` if you have severe duplicate content issues.
+
+#### Prev/Next Links
+
+Automatically adds `<link rel="prev">` and `<link rel="next">` tags if your model has `previous` and `next` relationships:
 
 **Model Example:**
 ```php
