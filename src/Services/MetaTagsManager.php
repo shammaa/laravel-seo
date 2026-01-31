@@ -80,23 +80,23 @@ final class MetaTagsManager
 
         // Title
         if ($this->title) {
-            $html .= '<title>' . e($this->title) . '</title>' . PHP_EOL;
+            $html .= '<title>' . e($this->title, false) . '</title>' . PHP_EOL;
         }
 
         // Description
         if ($this->description) {
-            $html .= '<meta name="description" content="' . e($this->description) . '">' . PHP_EOL;
+            $html .= '<meta name="description" content="' . e($this->description, false) . '">' . PHP_EOL;
         }
 
         // Canonical
         if ($this->canonical) {
-            $html .= '<link rel="canonical" href="' . e($this->canonical) . '">' . PHP_EOL;
+            $html .= '<link rel="canonical" href="' . e($this->canonical, false) . '">' . PHP_EOL;
         }
 
         // Meta tags
         foreach ($this->metas as $meta) {
-            $name = e($meta['name']);
-            $content = e($meta['content']);
+            $name = e($meta['name'], false);
+            $content = e($meta['content'], false);
             $type = $meta['type'];
 
             if ($type === 'link') {
@@ -112,7 +112,7 @@ final class MetaTagsManager
 
         // Alternate languages
         foreach ($this->alternateLanguages as $alternate) {
-            $html .= '<link rel="alternate" hreflang="' . e($alternate['locale']) . '" href="' . e($alternate['url']) . '">' . PHP_EOL;
+            $html .= '<link rel="alternate" hreflang="' . e($alternate['locale'], false) . '" href="' . e($alternate['url'], false) . '">' . PHP_EOL;
         }
 
         return $html;

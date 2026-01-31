@@ -83,24 +83,24 @@ final class OpenGraphManager
 
         // Properties
         foreach ($this->properties as $property => $value) {
-            $html .= '<meta property="' . e($property) . '" content="' . e($value) . '">' . PHP_EOL;
+            $html .= '<meta property="' . e($property, false) . '" content="' . e($value, false) . '">' . PHP_EOL;
         }
 
         // Images
         foreach ($this->images as $image) {
-            $html .= '<meta property="og:image" content="' . e($image['url']) . '">' . PHP_EOL;
+            $html .= '<meta property="og:image" content="' . e($image['url'], false) . '">' . PHP_EOL;
             
             if (isset($image['width'])) {
-                $html .= '<meta property="og:image:width" content="' . e((string) $image['width']) . '">' . PHP_EOL;
+                $html .= '<meta property="og:image:width" content="' . e((string) $image['width'], false) . '">' . PHP_EOL;
             }
             if (isset($image['height'])) {
-                $html .= '<meta property="og:image:height" content="' . e((string) $image['height']) . '">' . PHP_EOL;
+                $html .= '<meta property="og:image:height" content="' . e((string) $image['height'], false) . '">' . PHP_EOL;
             }
             if (isset($image['type'])) {
-                $html .= '<meta property="og:image:type" content="' . e($image['type']) . '">' . PHP_EOL;
+                $html .= '<meta property="og:image:type" content="' . e($image['type'], false) . '">' . PHP_EOL;
             }
             if (isset($image['alt'])) {
-                $html .= '<meta property="og:image:alt" content="' . e($image['alt']) . '">' . PHP_EOL;
+                $html .= '<meta property="og:image:alt" content="' . e($image['alt'], false) . '">' . PHP_EOL;
             }
         }
 

@@ -33,8 +33,8 @@ final class PageDataExtractor
         $homeConfig = $this->config['pages']['home'] ?? [];
 
         return new PageData(
-            title: $homeConfig['title'] ?? trans('trans.home', [], app()->getLocale()) . ' - ' . $siteData['name'],
-            description: $homeConfig['description'] ?? $siteData['description'],
+            title: htmlspecialchars_decode($homeConfig['title'] ?? trans('trans.home', [], app()->getLocale()) . ' - ' . $siteData['name']),
+            description: htmlspecialchars_decode($homeConfig['description'] ?? $siteData['description']),
             image: $homeConfig['image'] ?? $siteData['logo'],
             schema: $homeConfig['schema'] ?? 'WebSite',
             keywords: $homeConfig['keywords'] ?? $defaults['keywords'] ?? [],
@@ -50,6 +50,8 @@ final class PageDataExtractor
         $fallbacks = $defaults['fallbacks'] ?? [];
 
         $title = $this->getModelAttribute($model, ['title', 'name'], $fallbacks['post_title'] ?? 'Post');
+        $title = htmlspecialchars_decode($title);
+        
         $description = $this->limitWords(
             $this->getModelAttribute($model, ['content', 'text', 'description'], ''),
             $postConfig['description_limit'] ?? 30
@@ -86,6 +88,8 @@ final class PageDataExtractor
         $fallbacks = $defaults['fallbacks'] ?? [];
 
         $name = $this->getModelAttribute($model, ['name', 'title'], $fallbacks['category_name'] ?? 'Category');
+        $name = htmlspecialchars_decode($name);
+        
         $description = $this->getModelAttribute($model, ['description'], null);
         
         if (empty($description)) {
@@ -117,7 +121,7 @@ final class PageDataExtractor
         $searchConfig = $this->config['pages']['search'] ?? [];
         $defaults = $this->config['defaults'] ?? [];
         $fallbacks = $defaults['fallbacks'] ?? [];
-        $query = $params['query'] ?? '';
+        $query = htmlspecialchars_decode($params['query'] ?? '');
 
         $titleTemplate = $searchConfig['title'] ?? $fallbacks['search_title'] ?? 'Search results for: :query - :site';
         $title = str_replace([':query', ':site'], [$query, $siteData['name']], $titleTemplate);
@@ -216,6 +220,8 @@ final class PageDataExtractor
         $fallbacks = $defaults['fallbacks'] ?? [];
 
         $name = $this->getModelAttribute($model, ['name', 'title', 'product_name'], $fallbacks['product_name'] ?? 'Product');
+        $name = htmlspecialchars_decode($name);
+        
         $description = $this->limitWords(
             $this->getModelAttribute($model, ['description', 'content', 'product_description'], ''),
             $productConfig['description_limit'] ?? 30

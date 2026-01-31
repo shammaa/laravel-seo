@@ -698,8 +698,8 @@ final class SEOService
             }
 
             return [
-                'name' => $siteConfig['name'] ?? config('app.name'),
-                'description' => $siteConfig['description'] ?? '',
+                'name' => htmlspecialchars_decode($siteConfig['name'] ?? config('app.name')),
+                'description' => htmlspecialchars_decode($siteConfig['description'] ?? ''),
                 'logo' => $this->getLogoUrl($siteConfig['logo'] ?? null),
                 'url' => $siteConfig['url'] ?? $this->getDefaultUrl(),
                 'locale' => $locale,
