@@ -39,8 +39,8 @@ final class TwitterCardManager
         $html = '';
 
         foreach ($this->values as $key => $value) {
-            $content = e(htmlspecialchars_decode((string)$value), false);
-            $html .= '<meta name="twitter:' . e($key, false) . '" content="' . $content . '">' . PHP_EOL;
+            $content = htmlspecialchars(htmlspecialchars_decode((string)$value), ENT_NOQUOTES, 'UTF-8', false);
+            $html .= '<meta name="twitter:' . $key . '" content="' . $content . '">' . PHP_EOL;
         }
 
         return $html;

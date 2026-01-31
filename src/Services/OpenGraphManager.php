@@ -83,26 +83,27 @@ final class OpenGraphManager
 
         // Properties
         foreach ($this->properties as $property => $value) {
-            // We decode entities first to ensure no double encoding, then encode once without double encoding
-            $content = e(htmlspecialchars_decode((string)$value), false);
-            $html .= '<meta property="' . e($property, false) . '" content="' . $content . '">' . PHP_EOL;
+            // Decode first, then encode without quotes to allow literal " in source
+            $content = htmlspecialchars(htmlspecialchars_decode((string)$value), ENT_NOQUOTES, 'UTF-8', false);
+            $html .= '<meta property="' . $property . '" content="' . $content . '">' . PHP_EOL;
         }
 
         // Images
         foreach ($this->images as $image) {
-            $html .= '<meta property="og:image" content="' . e($image['url'], false) . '">' . PHP_EOL;
+            $html .= '<meta property="og:image" content="' . $image['url'] . '">' . PHP_EOL;
             
             if (isset($image['width'])) {
-                $html .= '<meta property="og:image:width" content="' . e((string) $image['width'], false) . '">' . PHP_EOL;
+                $html .= '<meta property="og:image:width" content="' . $image['width'] . '">' . PHP_EOL;
             }
             if (isset($image['height'])) {
-                $html .= '<meta property="og:image:height" content="' . e((string) $image['height'], false) . '">' . PHP_EOL;
+                $html .= '<meta property="og:image:height" content="' . $image['height'] . '">' . PHP_EOL;
             }
             if (isset($image['type'])) {
-                $html .= '<meta property="og:image:type" content="' . e($image['type'], false) . '">' . PHP_EOL;
+                $html .= '<meta property="og:image:type" content="' . $image['type'] . '">' . PHP_EOL;
             }
             if (isset($image['alt'])) {
-                $html .= '<meta property="og:image:alt" content="' . e($image['alt'], false) . '">' . PHP_EOL;
+                $alt = htmlspecialchars(htmlspecialchars_decode((string)$image['alt']), ENT_NOQUOTES, 'UTF-8', false);
+                $html .= '<meta property="og:image:alt" content="' . $alt . '">' . PHP_EOL;
             }
         }
 

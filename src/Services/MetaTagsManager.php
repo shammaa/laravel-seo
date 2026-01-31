@@ -88,37 +88,36 @@ final class MetaTagsManager
 
         // Description
         if ($this->description) {
-            $description = e(htmlspecialchars_decode($this->description), false);
+            $description = htmlspecialchars(htmlspecialchars_decode($this->description), ENT_NOQUOTES, 'UTF-8', false);
             $html .= '<meta name="description" content="' . $description . '">' . PHP_EOL;
         }
 
         // Canonical
         if ($this->canonical) {
-            $html .= '<link rel="canonical" href="' . e($this->canonical, false) . '">' . PHP_EOL;
+            $html .= '<link rel="canonical" href="' . $this->canonical . '">' . PHP_EOL;
         }
 
         // Meta tags
         foreach ($this->metas as $meta) {
-            $name = e($meta['name'], false);
-            $content = e($meta['content'], false);
+            $name = $meta['name'];
             $type = $meta['type'];
 
             if ($type === 'link') {
-                $html .= '<link rel="' . $name . '" href="' . $content . '">' . PHP_EOL;
+                $html .= '<link rel="' . $name . '" href="' . $meta['content'] . '">' . PHP_EOL;
             } elseif ($type === 'http-equiv') {
-                $html .= '<meta http-equiv="' . $name . '" content="' . $content . '">' . PHP_EOL;
+                $html .= '<meta http-equiv="' . $name . '" content="' . $meta['content'] . '">' . PHP_EOL;
             } elseif ($type === 'property') {
-                $content = e(htmlspecialchars_decode((string)$meta['content']), false);
+                $content = htmlspecialchars(htmlspecialchars_decode((string)$meta['content']), ENT_NOQUOTES, 'UTF-8', false);
                 $html .= '<meta property="' . $name . '" content="' . $content . '">' . PHP_EOL;
             } else {
-                $content = e(htmlspecialchars_decode((string)$meta['content']), false);
+                $content = htmlspecialchars(htmlspecialchars_decode((string)$meta['content']), ENT_NOQUOTES, 'UTF-8', false);
                 $html .= '<meta name="' . $name . '" content="' . $content . '">' . PHP_EOL;
             }
         }
 
         // Alternate languages
         foreach ($this->alternateLanguages as $alternate) {
-            $html .= '<link rel="alternate" hreflang="' . e($alternate['locale'], false) . '" href="' . e($alternate['url'], false) . '">' . PHP_EOL;
+            $html .= '<link rel="alternate" hreflang="' . $alternate['locale'] . '" href="' . $alternate['url'] . '">' . PHP_EOL;
         }
 
         return $html;
