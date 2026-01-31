@@ -42,7 +42,25 @@ final class MetaTagsBuilder
         // 1. If explicit paginator is provided, use its current page URL
         if ($paginator && method_exists($paginator, 'url') && method_exists($paginator, 'currentPage')) {
             try {
-                return $paginator->url($paginator->currentPage());
+                $url = $paginator->url($paginator->currentPage());
+                
+                // Remove ?page=1 or &page=1 to ensure strict canonical
+                // Check if it has query params
+                if (str_contains($url, 'page=1')) {
+                    $parts = parse_url($url);
+                    if (isset($parts['query'])) {
+                        parse_str($parts['query'], $query);
+                        if (isset($query['page']) && $query['page'] == 1) {
+                            unset($query['page']);
+                        }
+                        
+                        // Rebuild URL
+                        $newQuery = http_build_query($query);
+                        $url = $parts['scheme'] . '://' . $parts['host'] . ($parts['path'] ?? '') . ($newQuery ? '?' . $newQuery : '');
+                    }
+                }
+                
+                return $url;
             } catch (\Exception $e) {
                 // Fallback
             }

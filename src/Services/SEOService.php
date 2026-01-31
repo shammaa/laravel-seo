@@ -202,6 +202,21 @@ final class SEOService
             $this->jsonLdManager->reset();
             
             $pageData = $this->getPageData();
+            
+            // Sync PageData Clean URL from Paginator if available
+            if ($this->paginator && method_exists($this->paginator, 'currentPage') && method_exists($this->paginator, 'url')) {
+                try {
+                     $cleanUrl = $this->paginator->url($this->paginator->currentPage());
+                     // Clean ?page=1 or &page=1
+                     if (str_contains($cleanUrl, 'page=1')) {
+                         $cleanUrl = preg_replace('/([?&])page=1$/', '', $cleanUrl);
+                         $cleanUrl = preg_replace('/([?&])page=1&/', '$1', $cleanUrl);
+                         $cleanUrl = rtrim($cleanUrl, '?&');
+                     }
+                     $pageData->url = $cleanUrl;
+                } catch (\Exception $e) {}
+            }
+
             $siteData = $this->getSiteData();
 
         // Build Meta Tags
@@ -276,13 +291,21 @@ final class SEOService
             }
         }
         
-            // Share pagination links if available
-            if (!empty($this->config['pagination']['enabled']) && $this->model) {
-                $pagination = $this->getPaginationLinks($this->model);
-                if ($pagination) {
-                    view()->share('paginationLinks', $pagination);
+        // Share pagination links if available
+        if (!empty($this->config['pagination']['enabled']) && ($this->model || $this->paginator)) {
+            $pagination = $this->getPaginationLinks($this->model);
+            if ($pagination) {
+                // Add to MetaTagsManager so render() outputs them
+                if (isset($pagination['prev'])) {
+                     $this->metaTagsManager->addMeta('prev', $pagination['prev'], 'link');
                 }
+                if (isset($pagination['next'])) {
+                     $this->metaTagsManager->addMeta('next', $pagination['next'], 'link');
+                }
+
+                view()->share('paginationLinks', $pagination);
             }
+        }
         } catch (\Exception $e) {
             Log::error('SEO set() failed', [
                 'page_type' => $this->pageType,
