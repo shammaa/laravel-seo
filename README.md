@@ -110,6 +110,58 @@ Edit `config/seo.php` and set your site information:
 ],
 ```
 
+### Dynamic Site Data from Database (Recommended)
+
+Instead of hardcoding site information in the config file, you can load it dynamically from your database. This is useful when:
+- You have a CMS with editable site settings
+- You need to change site name/description without deploying
+- You want to include social media links dynamically
+
+**Step 1: Register the resolver in your Service Provider:**
+
+```php
+use Shammaa\LaravelSEO\Services\SEOService;
+
+// In AppServiceProvider or a dedicated SEOServiceProvider
+public function boot(): void
+{
+    SEOService::setSiteDataResolver(function () {
+        $settings = cache()->remember('site_settings', 86400, function () {
+            return \App\Models\Setting::first();
+        });
+        
+        return [
+            'name' => $settings->site_name ?? config('app.name'),
+            'description' => $settings->site_description ?? '',
+            'logo' => $settings->site_logo ?? null,
+            'publisher' => $settings->publisher_name ?? $settings->site_name,
+            // Social media links for sameAs in Organization schema
+            'same_as' => array_filter([
+                $settings->facebook_url,
+                $settings->twitter_url,
+                $settings->instagram_url,
+                $settings->youtube_url,
+                $settings->linkedin_url,
+                $settings->telegram_url,
+            ]),
+        ];
+    });
+}
+```
+
+**Step 2: The resolver data automatically:**
+- ✅ Overrides config values
+- ✅ Populates `og:site_name`, `publisher`, `author`
+- ✅ Adds `sameAs` links to Organization and NewsArticle schemas
+- ✅ Is cached for performance (configurable TTL)
+
+**Clearing cache after settings update:**
+```php
+// In your Settings controller after update:
+cache()->forget('site_settings');
+cache()->forget('seo_site_data_' . app()->getLocale());
+```
+
 ## Quick Start
 
 ### Basic Usage

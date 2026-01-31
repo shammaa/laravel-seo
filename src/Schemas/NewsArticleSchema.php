@@ -151,12 +151,13 @@ final class NewsArticleSchema
 
         // Default to organization
         $orgConfig = $this->config['organization'] ?? [];
+        $sameAs = $siteData['same_as'] ?? $orgConfig['same_as'] ?? [];
         
         return [
             '@type' => 'NewsMediaOrganization',
             'name' => $orgConfig['name'] ?? $siteData['name'],
             'url' => $siteData['url'],
-            'sameAs' => $orgConfig['same_as'] ?? [],
+            'sameAs' => $sameAs,
         ];
     }
 
@@ -177,8 +178,9 @@ final class NewsArticleSchema
             ],
         ];
 
-        if (!empty($orgConfig['same_as'])) {
-            $publisher['sameAs'] = $orgConfig['same_as'];
+        $sameAs = $siteData['same_as'] ?? $orgConfig['same_as'] ?? [];
+        if (!empty($sameAs)) {
+            $publisher['sameAs'] = $sameAs;
         }
 
         return $publisher;

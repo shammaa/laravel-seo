@@ -38,8 +38,10 @@ final class OrganizationSchema
             $schema['description'] = $orgConfig['description'];
         }
 
-        if (!empty($orgConfig['same_as'])) {
-            $schema['sameAs'] = $orgConfig['same_as'];
+        // Use sameAs from siteData (dynamic) or config (static)
+        $sameAs = $siteData['same_as'] ?? $orgConfig['same_as'] ?? [];
+        if (!empty($sameAs)) {
+            $schema['sameAs'] = $sameAs;
         }
 
         if (!empty($orgConfig['contact_point']['email'])) {

@@ -40,6 +40,8 @@ final class VideoSchema
 
         if (!empty($orgConfig['same_as'])) {
             $schema['publisher']['sameAs'] = $orgConfig['same_as'];
+        } elseif (!empty($siteData['same_as'])) {
+            $schema['publisher']['sameAs'] = $siteData['same_as'];
         }
 
         return $schema;
