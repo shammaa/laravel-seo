@@ -124,6 +124,26 @@ final class SEOService
         return $this->for('product', $model);
     }
 
+    public function tag($model): self
+    {
+        return $this->for('tag', $model);
+    }
+
+    public function author($model): self
+    {
+        return $this->for('author', $model);
+    }
+
+    public function archive($model): self
+    {
+        return $this->for('archive', $model);
+    }
+
+    public function page($model): self
+    {
+        return $this->for('page', $model);
+    }
+
     /**
      * Set SEO data for the current page.
      *

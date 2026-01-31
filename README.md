@@ -248,7 +248,7 @@ public function show(Product $product)
 public function search(Request $request)
 {
     SEO::search(['query' => $request->get('q')])->set();
-    return view('search', ['query' => $request->get('q')]);
+    return view('search.results');
 }
 ```
 
@@ -257,7 +257,7 @@ public function search(Request $request)
 ```php
 public function show(Tag $tag)
 {
-    SEO::for('tag', $tag)->set();
+    SEO::tag($tag)->set();
     return view('tag.show', compact('tag'));
 }
 ```
@@ -267,7 +267,7 @@ public function show(Tag $tag)
 ```php
 public function show(Author $author)
 {
-    SEO::for('author', $author)->set();
+    SEO::author($author)->set();
     return view('author.show', compact('author'));
 }
 ```
@@ -277,7 +277,7 @@ public function show(Author $author)
 ```php
 public function archive(string $date)
 {
-    SEO::for('archive', $date)->set(); // $date can be string like "2024-01" or object
+    SEO::archive($date)->set();
     return view('archive.show', compact('date'));
 }
 ```
@@ -287,7 +287,7 @@ public function archive(string $date)
 ```php
 public function show(Page $page)
 {
-    SEO::for('page', $page)->set();
+    SEO::page($page)->set();
     return view('page.show', compact('page'));
 }
 ```

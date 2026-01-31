@@ -23,6 +23,10 @@ final class PageDataExtractor
             'category' => $this->extractCategoryData($model, $siteData),
             'product' => $this->extractProductData($model, $siteData),
             'search' => $this->extractSearchData($model, $siteData),
+            'tag' => $this->extractTagData($model, $siteData),
+            'author' => $this->extractAuthorData($model, $siteData),
+            'archive' => $this->extractArchiveData($model, $siteData),
+            'page' => $this->extractPageData($model, $siteData),
             default => $this->extractHomeData($siteData),
         };
     }
@@ -292,6 +296,122 @@ final class PageDataExtractor
         }
 
         return $siteData['name'];
+    }
+
+    private function extractTagData($model, array $siteData): PageData
+    {
+        $defaults = $this->config['defaults'] ?? [];
+        $tagConfig = $this->config['pages']['tag'] ?? [];
+        $fallbacks = $defaults['fallbacks'] ?? [];
+
+        $name = $this->getModelAttribute($model, ['name', 'title'], $fallbacks['tag_name'] ?? 'Tag');
+        $name = htmlspecialchars_decode($name);
+        
+        $description = $this->getModelAttribute($model, ['description'], null);
+        
+        if (empty($description)) {
+            $descriptionTemplate = $fallbacks['tag_description'] ?? 'Browse all articles tagged with :name';
+            $description = str_replace(':name', $name, $descriptionTemplate);
+        } else {
+            $description = $this->limitWords($description, $tagConfig['description_limit'] ?? 30);
+        }
+
+        $image = $this->getModelAttribute($model, ['photo', 'image', 'thumbnail'], null);
+
+        return new PageData(
+            title: ($tagConfig['title_prefix'] ?? true) 
+                ? $name . ' - ' . $siteData['name'] 
+                : $name,
+            description: $description,
+            image: $image ?? $siteData['logo'],
+            schema: $tagConfig['schema'] ?? 'CollectionPage',
+            keywords: [$name, ...($defaults['keywords'] ?? [])],
+            author: $siteData['name'],
+            robots: $tagConfig['robots'] ?? 'index, follow',
+        );
+    }
+
+    private function extractAuthorData($model, array $siteData): PageData
+    {
+        $defaults = $this->config['defaults'] ?? [];
+        $authorConfig = $this->config['pages']['author'] ?? [];
+        $fallbacks = $defaults['fallbacks'] ?? [];
+
+        $name = $this->getModelAttribute($model, ['name', 'title', 'display_name'], $fallbacks['author_name'] ?? 'Author');
+        $name = htmlspecialchars_decode($name);
+        
+        $description = $this->getModelAttribute($model, ['bio', 'description', 'about'], null);
+        
+        if (empty($description)) {
+            $descriptionTemplate = $fallbacks['author_description'] ?? 'Articles written by :name';
+            $description = str_replace(':name', $name, $descriptionTemplate);
+        } else {
+            $description = $this->limitWords($description, $authorConfig['description_limit'] ?? 30);
+        }
+
+        $image = $this->getModelAttribute($model, ['photo', 'avatar', 'image', 'profile_image'], null);
+
+        return new PageData(
+            title: ($authorConfig['title_prefix'] ?? true) 
+                ? $name . ' - ' . $siteData['name'] 
+                : $name,
+            description: $description,
+            image: $image ?? $siteData['logo'],
+            schema: $authorConfig['schema'] ?? 'ProfilePage',
+            keywords: [$name, ...($defaults['keywords'] ?? [])],
+            author: $name,
+            robots: $authorConfig['robots'] ?? 'index, follow',
+        );
+    }
+
+    private function extractArchiveData($model, array $siteData): PageData
+    {
+        $defaults = $this->config['defaults'] ?? [];
+        $archiveConfig = $this->config['pages']['archive'] ?? [];
+
+        $title = is_array($model) ? ($model['title'] ?? 'Archive') : 'Archive';
+        $description = is_array($model) ? ($model['description'] ?? null) : null;
+        
+        if (empty($description)) {
+            $description = $archiveConfig['description'] ?? 'Browse our article archive';
+        }
+
+        return new PageData(
+            title: $title . ' - ' . $siteData['name'],
+            description: $description,
+            image: $siteData['logo'],
+            schema: $archiveConfig['schema'] ?? 'CollectionPage',
+            keywords: $defaults['keywords'] ?? [],
+            author: $siteData['name'],
+            robots: $archiveConfig['robots'] ?? 'index, follow',
+        );
+    }
+
+    private function extractPageData($model, array $siteData): PageData
+    {
+        $defaults = $this->config['defaults'] ?? [];
+        $pageConfig = $this->config['pages']['page'] ?? [];
+        $fallbacks = $defaults['fallbacks'] ?? [];
+
+        $title = $this->getModelAttribute($model, ['title', 'name'], $fallbacks['page_title'] ?? 'Page');
+        $title = htmlspecialchars_decode($title);
+        
+        $description = $this->getModelAttribute($model, ['description', 'content', 'excerpt'], null);
+        $description = $this->limitWords($description ?? '', $pageConfig['description_limit'] ?? 30);
+
+        $image = $this->getModelAttribute($model, ['photo', 'image', 'featured_image'], null);
+
+        return new PageData(
+            title: ($pageConfig['title_prefix'] ?? true) 
+                ? $title . ' - ' . $siteData['name'] 
+                : $title,
+            description: $description ?: $siteData['description'],
+            image: $image ?? $siteData['logo'],
+            schema: $pageConfig['schema'] ?? 'WebPage',
+            keywords: $defaults['keywords'] ?? [],
+            author: $siteData['name'],
+            robots: $pageConfig['robots'] ?? 'index, follow',
+        );
     }
 }
 
