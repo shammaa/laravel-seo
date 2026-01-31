@@ -192,8 +192,12 @@ final class SEOService
         $this->autoDetectSchemas();
 
         // Build Basic JsonLd (for non-article and non-product pages)
-        if ($pageData->schema !== 'NewsArticle' && $pageData->schema !== 'Product') {
-            $this->buildBasicJsonLd($pageData);
+        // Build Basic JsonLd (fallback for unhandled schemas)
+        if (!in_array($pageData->schema, ['NewsArticle', 'Product', 'CollectionPage', 'ProfilePage'])) {
+            // Also skip if page type is explicitly handled by SchemaBuilder (e.g. 'page' uses WebPage)
+            if ($this->pageType !== 'page') {
+                $this->buildBasicJsonLd($pageData);
+            }
         }
 
         // Build Custom Schemas

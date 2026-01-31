@@ -14,6 +14,8 @@ use Shammaa\LaravelSEO\Schemas\OrganizationSchema;
 use Shammaa\LaravelSEO\Schemas\CollectionPageSchema;
 use Shammaa\LaravelSEO\Schemas\ProductSchema;
 
+use Shammaa\LaravelSEO\Schemas\ProfilePageSchema;
+
 final class SchemaBuilder
 {
     public function __construct(
@@ -43,6 +45,19 @@ final class SchemaBuilder
         } elseif ($pageType === 'category' && $model) {
             $schemas[] = (new CollectionPageSchema($this->config))->build($pageData);
             $schemas[] = (new BreadcrumbSchema($this->config))->build($model, $siteData, 'category');
+        } elseif ($pageType === 'tag' && $model) {
+            $schemas[] = (new CollectionPageSchema($this->config))->build($pageData);
+            $schemas[] = (new BreadcrumbSchema($this->config))->build($model, $siteData, 'tag');
+        } elseif ($pageType === 'archive') {
+            $schemas[] = (new CollectionPageSchema($this->config))->build($pageData);
+        } elseif ($pageType === 'author' && $model) {
+            $schemas[] = (new ProfilePageSchema($this->config))->build($pageData);
+            $schemas[] = (new BreadcrumbSchema($this->config))->build($model, $siteData, 'author');
+        } elseif ($pageType === 'page') {
+            $schemas[] = (new WebPageSchema($this->config))->build($pageData);
+            if ($model) {
+                $schemas[] = (new BreadcrumbSchema($this->config))->build($model, $siteData, 'page');
+            }
         }
 
         return $this->renderSchemas($schemas);

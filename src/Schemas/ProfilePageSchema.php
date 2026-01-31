@@ -6,7 +6,7 @@ namespace Shammaa\LaravelSEO\Schemas;
 
 use Shammaa\LaravelSEO\Data\PageData;
 
-final class CollectionPageSchema
+final class ProfilePageSchema
 {
     public function __construct(
         private array $config = []
@@ -17,16 +17,18 @@ final class CollectionPageSchema
     {
         return [
             '@context' => 'https://schema.org',
-            '@type' => 'CollectionPage',
+            '@type' => 'ProfilePage',
             'name' => $pageData->title,
             'description' => $pageData->description,
             'url' => $this->getCurrentUrl(),
+            'mainEntity' => [
+                '@type' => 'Person',
+                'name' => $pageData->author,
+                'image' => $pageData->image,
+            ],
         ];
     }
 
-    /**
-     * Get current URL safely (works in console and HTTP contexts)
-     */
     /**
      * Get current URL safely (works in console and HTTP contexts)
      */
@@ -52,4 +54,3 @@ final class CollectionPageSchema
         }
     }
 }
-

@@ -15,6 +15,20 @@ final class PageDataExtractor
     ) {
     }
 
+    private function getPageSuffix(): string
+    {
+        if (app()->runningInConsole()) {
+            return '';
+        }
+
+        $page = request()->query('page');
+        if ($page && (int)$page > 1) {
+            return ' - ' . trans('trans.page', [], app()->getLocale()) . ' ' . $page;
+        }
+
+        return '';
+    }
+
     public function extract(string $pageType, $model, array $siteData): PageData
     {
         return match ($pageType) {
@@ -103,16 +117,20 @@ final class PageDataExtractor
             $description = $this->limitWords($description, $categoryConfig['description_limit'] ?? 30);
         }
 
+        $pageSuffix = $this->getPageSuffix();
+        $title = (($categoryConfig['title_prefix'] ?? true)
+                ? $name . ' - ' . $siteData['name']
+                : $name) . $pageSuffix;
+        $description .= $pageSuffix;
+
         $image = $this->getModelAttribute($model, ['photo', 'image', 'thumbnail'], null);
         $keywords = $this->extractCategoryKeywords($model, $siteData, $defaults);
 
         return new PageData(
-            title: ($categoryConfig['title_prefix'] ?? true)
-                ? $name . ' - ' . $siteData['name']
-                : $name,
+            title: $title,
             description: $description,
-            image: $image,
-            schema: 'CollectionPage',
+            image: $image ?? $siteData['logo'],
+            schema: $categoryConfig['schema'] ?? 'CollectionPage',
             keywords: $keywords,
             author: $categoryConfig['author'] ?? $siteData['name'],
             robots: $categoryConfig['robots'] ?? 'index, follow',
@@ -316,12 +334,16 @@ final class PageDataExtractor
             $description = $this->limitWords($description, $tagConfig['description_limit'] ?? 30);
         }
 
+        $pageSuffix = $this->getPageSuffix();
+        $title = (($tagConfig['title_prefix'] ?? true) 
+                ? $name . ' - ' . $siteData['name'] 
+                : $name) . $pageSuffix;
+        $description .= $pageSuffix;
+
         $image = $this->getModelAttribute($model, ['photo', 'image', 'thumbnail'], null);
 
         return new PageData(
-            title: ($tagConfig['title_prefix'] ?? true) 
-                ? $name . ' - ' . $siteData['name'] 
-                : $name,
+            title: $title,
             description: $description,
             image: $image ?? $siteData['logo'],
             schema: $tagConfig['schema'] ?? 'CollectionPage',
@@ -349,12 +371,16 @@ final class PageDataExtractor
             $description = $this->limitWords($description, $authorConfig['description_limit'] ?? 30);
         }
 
+        $pageSuffix = $this->getPageSuffix();
+        $title = (($authorConfig['title_prefix'] ?? true) 
+                ? $name . ' - ' . $siteData['name'] 
+                : $name) . $pageSuffix;
+        $description .= $pageSuffix;
+
         $image = $this->getModelAttribute($model, ['photo', 'avatar', 'image', 'profile_image'], null);
 
         return new PageData(
-            title: ($authorConfig['title_prefix'] ?? true) 
-                ? $name . ' - ' . $siteData['name'] 
-                : $name,
+            title: $title,
             description: $description,
             image: $image ?? $siteData['logo'],
             schema: $authorConfig['schema'] ?? 'ProfilePage',
@@ -376,8 +402,12 @@ final class PageDataExtractor
             $description = $archiveConfig['description'] ?? 'Browse our article archive';
         }
 
+        $pageSuffix = $this->getPageSuffix();
+        $title = ($title . ' - ' . $siteData['name']) . $pageSuffix;
+        $description .= $pageSuffix;
+
         return new PageData(
-            title: $title . ' - ' . $siteData['name'],
+            title: $title,
             description: $description,
             image: $siteData['logo'],
             schema: $archiveConfig['schema'] ?? 'CollectionPage',
@@ -414,4 +444,3 @@ final class PageDataExtractor
         );
     }
 }
-

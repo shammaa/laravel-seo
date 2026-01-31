@@ -34,6 +34,9 @@ final class MetaTagsBuilder
     /**
      * Get canonical URL - for paginated pages, points to the first page
      */
+    /**
+     * Get canonical URL - for paginated pages, includes the page parameter
+     */
     private function getCanonicalUrl(): string
     {
         $currentUrl = $this->getCurrentUrl();
@@ -54,14 +57,14 @@ final class MetaTagsBuilder
                 $currentUrl = preg_replace('/\/page\/\d+/', '', $currentUrl);
             }
             
-            // For page 1 or no page, canonical is the current URL (without page param)
-            // For page 2+, canonical should be the first page (configurable)
+            // If we are on page 2+, append it to canonical (Standard SEO practice)
+            // Unless configured to point to first page (Not recommended for unique archives)
             $paginationConfig = $this->config['pagination'] ?? [];
-            $canonicalToFirst = $paginationConfig['canonical_to_first'] ?? true;
+            $canonicalToFirst = $paginationConfig['canonical_to_first'] ?? false; // Default should be false for proper indexing
             
-            if ($canonicalToFirst && $page && (int)$page > 1) {
-                // Remove page query param for canonical
-                $currentUrl = strtok($currentUrl, '?');
+            if ($page && (int)$page > 1 && !$canonicalToFirst) {
+                $separator = str_contains($currentUrl, '?') ? '&' : '?';
+                return $currentUrl . $separator . 'page=' . $page;
             }
             
             return $currentUrl;
